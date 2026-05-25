@@ -46,8 +46,8 @@
 - **Dependants:** {Callers that must change.}
 - **Kind:** {Function | Struct | Module | Crate | Database | ...}
 - **Details:** {5–10 lines of pseudo-code or type signatures.}
-- **Rationale:** {One short paragraph. Name the AC or FR this serves
-  and how this component contributes. If it's plumbing, say which AC
+- **Rationale:** {One short paragraph. Name the FR this serves and
+  how this component contributes. If it's plumbing, say which FR
   exercises it transitively.}
 
 ### Added
@@ -58,7 +58,7 @@
 - **Location:** {Path or module.}
 - **Kind:** {...}
 - **Details:** {5–10 lines max.}
-- **Rationale:** {One short paragraph linking it to AC or FR.}
+- **Rationale:** {One short paragraph linking it to FR.}
 
 ### Used
 
@@ -71,15 +71,9 @@
 
 ---
 
-## QA Feasibility
-
-- **QA-XX:** {Runnable as-is, or setup required.}
-
----
-
 ## Feasibility Review
 
-- {Deferred FR resolution or design blocker.}
+- {Design blockers, provisioning dependencies, or AT-XX setup gaps that gate the implementation. Name which FR each blocker affects.}
 
 ---
 

@@ -1,181 +1,77 @@
 ---
 name: plan
-description: Create and refine design documents for features using the SDD methodology. Use this skill when designing, creating designs, or refining designs. Produces structured design documents with architecture, components, test scenarios, and quality standards. Does NOT include task breakdown - use the tasks skill for that.
 version: 0.2.5
+description: Create and refine design documents for features using the SDD methodology. Use this skill when designing, creating designs, or refining designs. Produces structured design documents with architecture, components, test scenarios, and quality standards. Does NOT include task breakdown - use the tasks skill for that.
 ---
 
 # Plan
 
-## Practical Guidelines
+**Plan** turns the specification into an architectural design expressed as a set of components. It runs after requirements and before tasks.
 
-### Project Structure
-
-All SDD artifacts live in `.sdd/{feature}/` where `{feature}` is the kebab-case feature name (e.g., `user-authentication`).
-
-### Templates
-
-- Design template: `templates/design.template.md`
-
-### Project Guidelines
-
-Use the `handbook` skill to read and resolve project conventions before designing.
-
-### Domain Skills
-
-After exploring the codebase with the Explore tool and understanding the task, identify which domain skills apply:
-
-- **distributed-systems**: Multiple services, network coordination, eventual consistency
-- **low-level-systems**: Memory management, performance-critical, OS interfaces
-- **security**: Auth, untrusted input, sensitive data, compliance
-- **infrastructure**: Cloud resources, IaC, networking, disaster recovery
-- **devops-sre**: CI/CD, deployment, observability, SLOs
-- **data-engineering**: Pipelines, ETL, schema evolution, data quality
-- **api-design**: Public/internal APIs, versioning, contracts
-
-Load relevant skills and apply their mindset and practices throughout specification, design, and review phases.
+All SDD artifacts live in `.sdd/{feature}/`. The `.sdd/index.md` is owned by `requirements` and `roadmap` — do not modify it from `plan`.
 
 ## Process
 
 ### Creating a Design
 
-Do this when a user asks to create a design.
+Copy `templates/design.template.md` to `.sdd/{feature}/design.md` if it doesn't exist.
 
-You MUST create the required document in the relevant feature-specific folder in the `.sdd/` folder at the root of the project.
-
-**Example:**
-
-**If** the user asks to create a **design** for user authentication **then** copy `templates/design.template.md` to `.sdd/user-authentication/design.md` if it doesn't already exist.
-
-The `.sdd/index.md` is owned by the `requirements` and `roadmap` skills — do not modify it from `plan`.
-
-### Designing
-
-Your **GOAL** is to complete the design template for the feature, **excluding** the Task Breakdown section (use the `tasks` skill for task breakdown).
-
-**Purpose:** The design document is a complete handover document. Anyone on the team should be able to pick it up and carry out the implementation without needing to ask clarifying questions.
-
-**Level of detail:** Include enough detail to enable handover to another team member, but not so much that you replicate the implementation in the document. Describe *what* and *why*, not *how* at the code level.
-
-#### Process
-
-**Step 1: Build the Design Brief**
-
-Read `.sdd/{feature}/specification.md` and `.sdd/{feature}/research.md`
-(if present). For roadmap deliverables, research will not exist —
-the roadmap retired it after approval. In that case, the design
-subagent will rediscover technical context via Explore (capped); do
-not fabricate research highlights.
-
-Distil into a compact brief that the writer subagent can work from
-without opening either source file. Keep the brief under ~80 lines.
-
-```
-## Design Brief
-
-**Problem:** {1 short paragraph from spec}
-
-**Functional Requirements:**
-- FR-01 ({title}): AC-01.1 {Given/When/Then summary}; AC-01.2 ...
-- FR-02 ({title}): AC-02.1 ...
-
-**Deferred / Non-Verifiable:**
-- FR-03 — Blocker: {reason}; Proposed: {drop/narrow/escalate}
-
-**NFRs:** {if any, with thresholds}
-
-**QA scenarios:** QA-01 (happy), QA-02 (failure: {short})
-
-**Research highlights (technical only):**
-- Existing pattern: {1 line}
-- Integration point: {1 line}
-- Constraint: {1 line}
-- Prior art: {1 line}
-{Omit this block entirely for roadmap deliverables — research is gone.}
-```
-
-Skip research's Observe / Orient / Diverge / Evaluate narrative — only the synthesised technical findings belong in the brief.
-
-**Step 2: Write the design document**
-
-You MUST use the Task tool to launch a subagent that writes the design. Do NOT write it yourself.
+**Step 1: Write the design.** Launch a subagent. The Task Breakdown section is owned by the `tasks` skill — leave it empty.
 
 **Subagent prompt:**
 > Write the design document for {feature} at `.sdd/{feature}/design.md`.
 >
+> Your job is to translate the specification's requirements into an architectural design, expressed as a **set of components**:
+> - **Modified** — existing components whose behavior changes to serve a requirement.
+> - **Added** — new components introduced because no existing component can serve the requirement.
+> - **Used** — existing components leaned on unchanged.
+>
+> Every Modified or Added component traces back to at least one FR via its Rationale. Cut or fold-into-caller any component that doesn't earn its place. Every FR from the specification appears in at least one component's Rationale.
+>
+> **NFRs are met by architectural choices and observability** — not by adding components. App-instrumented NFRs add metrics, logs, or traces emitted by named components so the NFR is visible in production. Record architectural choices in the Architecture section; record observability in Instrumentation.
+>
+> Describe *what* and *why* at the component level. Keep *how* at the code level for the implementer. Another team member should be able to implement from the design without clarifying questions.
+>
 > **Read:**
 > - Design template: `templates/design.template.md`
+> - Specification: `.sdd/{feature}/specification.md`
+> - Research: `.sdd/{feature}/research.md` (if it exists; absent for roadmap deliverables)
 > - Project conventions: use the `handbook` skill
+> - EARS syntax reference: use the `ears` skill (FRs are EARS sentences)
+> - Interface design rules: use the `interface-design` skill — components must be designed for testability (accept dependencies, return results, small surfaces)
+> - Relevant domain skills (security, api-design, distributed-systems, data-engineering, devops-sre, infrastructure, low-level-systems) — load any that apply.
 >
-> Do NOT read the specification or research — the brief below is your source of truth. Fall back to those files only if the brief is silent on something you need.
+> **Component rules:**
+> - Details: 5–10 lines of pseudo-code or type signatures. Keep implementation for the implementer.
+> - Plumbing components (behaviour only meaningful via a caller) state in the Rationale which FR exercises them transitively.
+> - App-instrumented NFRs drive entries in the Instrumentation section, naming the metric and the component that emits it. Platform-observed and architectural-only NFRs are recorded in Architecture or Risks alone — no component Rationale, no test.
 >
-> **Design Brief:**
-> {paste brief from Step 1}
+> **API Design:** Describe operations and data shapes in prose (inputs, outputs, errors).
 >
-> **Components:**
-> - Group as Modified, Added, or Used.
-> - Every component carries a Rationale naming the AC or FR it serves. If you cannot, cut it or fold it into its caller.
-> - Plumbing components (behaviour only meaningful via a caller) say so in the Rationale and name the AC that exercises them transitively. No standalone scenario.
-> - Details: 5–10 lines of pseudo-code or type signatures. No implementation.
-> - No TS-XX, ITS-XX, or E2E-XX blocks. AC live on requirements; components reference them in prose.
-> - Every AC in the brief must appear in at least one component's Rationale.
-> - NFRs map to architectural choices and instrumentation, not to component Rationales. Do not invent AC for NFRs. App-instrumented NFRs drive entries in the Instrumentation section, naming the metric and the component that emits it. Platform-observed and architectural-only NFRs are recorded in Architecture or Risks but get no code.
+> **Feasibility Review:** List any design blocker. If the feature requires provisioning or imperative-script execution before an acceptance test can run, note which AT depends on which user-executed action.
 >
-> **API Design:** Operations conceptually (what they do, inputs, outputs, errors). Data shapes in prose. No language syntax.
+> **Instrumentation:** Include when an NFR demands observability.
 >
-> **QA Feasibility:** For each QA-XX, can the stakeholder run it without white-box manipulation? If not, name the setup and decide: automate, narrow, or escalate.
+> Aim under 300 lines total. Use the template's sections as defined; omit any optional sections that don't apply.
 >
-> **Feasibility Review:** Resolve each Deferred FR — drop, narrow, or escalate. List any other design blocker. If the feature requires provisioning or imperative-script execution to be verifiable, note which AC depends on which user-executed action. The feature still ships through one task breakdown — execution gating is a runtime concern, not a scoping one.
+> **Codebase exploration:** If research exists, trust its technical findings and cap Explore at 3 targeted reads. If research is absent (roadmap deliverable), Explore to discover existing patterns, integration points, and constraints; cap at 8 reads.
 >
-> **Instrumentation:** Include only when an NFR demands observability.
->
-> **Output rules:**
-> - Follow the template exactly. Skip optional sections that don't apply.
-> - Leave Task Breakdown empty (the `tasks` skill owns it).
-> - Aim under 300 lines total.
-> - Save the document. Never skip this.
->
-> **Codebase exploration:** If the brief includes Research highlights, trust them and cap Explore at 3 targeted reads when something is silent. If the brief omits Research highlights (roadmap deliverable — research has been retired), you must Explore to discover existing patterns, integration points, and constraints. Cap at 8 targeted reads; prefer reading the design template's required sections first to know what to look for.
->
-> **Escalation:** If the brief is too ambiguous to design fully, STOP and report what you completed and what needs clarification.
+> **Escalation:** If the specification is too ambiguous to design fully, STOP and report what you completed and what needs clarification.
 
-**Step 3: Review the design**
+**Step 2: Review.** Use the `review` skill to perform a **Design Review** of `.sdd/{feature}/design.md`.
 
-Use the `review` skill to perform a **Design Review** of the design at .sdd/{feature}/design.md.
+**Step 3: Fix issues (if any).** If the review finds P0 or P1 issues, launch a subagent:
 
-**Step 4: Fix issues (if any)**
-
-If the review finds P0 or P1 issues, use the Task tool to launch a subagent to fix them. Do NOT fix them yourself.
-
-**Subagent prompt:**
-> Fix the following issues in the design at `.sdd/{feature}/design.md`, using the specification at `.sdd/{feature}/specification.md` as reference. Research at `.sdd/{feature}/research.md` may also exist; for roadmap deliverables it has been retired and should not be sought.
+> Fix the following issues in the design at `.sdd/{feature}/design.md`, using `.sdd/{feature}/specification.md` as reference. Research at `.sdd/{feature}/research.md` may also exist; for roadmap deliverables it has been retired and should not be sought.
+>
+> Your job is to apply the review findings below. Keep all other parts of the design as they are.
 >
 > {paste review findings here}
 >
 > Save the document when done.
 
-After the fix subagent completes, re-run Step 3 (review). Repeat Steps 3-4 until the review passes.
-
-#### Design Quality Checklist
-
-A complete design document must have:
-- **Link to specification** via the Linked Specification field
-- **Architecture overview** explaining current context and proposed changes
-- **Components defined** (Modified/Added/Used), each with a Rationale naming at least one AC or FR
-- **Every AC from the specification** named in at least one component's Rationale
-- **Deferred / Non-Verifiable FRs** from the specification each resolved in Feasibility Review
-- **Risks identified** with mitigation strategies
-- **No TBDs or ambiguities** in the final design
-- **QA feasibility analyzed** — white-box setup documented for each scenario
-
-Optional sections (include only if applicable):
-- Instrumentation (if NFRs require observability)
+Repeat Steps 2–3 until the review passes.
 
 ### Refining a Design
 
-When asked to refine a design:
-1. Read existing design and linked specification thoroughly
-2. Identify gaps, inconsistencies, or new requirements
-3. Use the Explore tool to search the codebase for changed context or new patterns
-4. Ask stakeholder about changed priorities or constraints
-5. Update the design while maintaining template structure
-6. Verify all requirements still map to components
+Read the existing design and linked specification. Identify gaps, inconsistencies, or new requirements; Explore the codebase for changed context. Update the design while maintaining the template structure. Verify every requirement still maps to a component.

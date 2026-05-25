@@ -6,6 +6,8 @@ version: 0.3.3
 
 # Requirements
 
+**Requirements** turns an idea into a behavioral specification. It runs after research (if any) and before plan.
+
 ## Practical Guidelines
 
 ### Project Structure
@@ -44,13 +46,7 @@ You **MUST** understand project guidelines by using the `handbook` skill
 
 Do this when a user asks to create a specification.
 
-**Roadmap check:** If the parent directory contains a `roadmap.md`, this
-spec is one deliverable from a roadmap. Confirm with the user which
-D-XX is being specified, read the deliverable's Outcome, In scope, and
-Out of scope fields from the roadmap, and add a `**Linked Roadmap:**
-.sdd/{initiative}/roadmap.md (D-XX)` field to the specification.
-Update the deliverable's Spec status in the roadmap when this spec
-moves through Drafting → Approved → Implemented.
+**Roadmap check:** If the parent directory contains a `roadmap.md`, the spec is a roadmap deliverable. Confirm which D-XX with the user, read its Outcome and In/Out scope from the roadmap, and add a `**Linked Roadmap:** .sdd/{initiative}/roadmap.md (D-XX)` field to the spec. Update the deliverable's Spec status as it moves Drafting → Approved → Implemented.
 
 1. **Create a feature branch** from main named `feature/<feature-name>` (e.g., `feature/user-authentication`). For roadmap deliverables, name the branch `feature/<initiative>-<deliverable-slug>`.
 2. **Create the spec folder.** Standalone: `.sdd/{feature}/`. Roadmap deliverable: `.sdd/{initiative}/{deliverable-slug}/`.
@@ -64,7 +60,7 @@ moves through Drafting → Approved → Implemented.
 
 Your **GOAL** is to complete all parts of the specification template for the feature.
 
-**Scope:** A single specification should represent approximately 1 day of implementation work. If the feature is larger, break it into multiple specifications. During the discovery interview, sense check the scope and suggest splitting if necessary.
+**Scope:** Each spec is ~1 day of implementation. Suggest splitting a larger feature into multiple specs during the interview.
 
 **Template guidance:**
 - Follow the template structure as defined in templates/specification.template.md
@@ -75,29 +71,26 @@ Your **GOAL** is to complete all parts of the specification template for the fea
 
 **Step 1: Read existing context**
 
-For a **standalone feature**, check if `.sdd/{feature}/research.md` exists. If it does, read it — but extract only what helps write behavioral requirements: what users/operators need, what the system must do and why, constraints that shape scope (e.g., "identity unavailable on gRPC path"), and evidence for what's feasible. Skip technical approaches, architecture, data models, and code patterns — those inform the design, not the spec.
+For a **standalone feature**, check if `.sdd/{feature}/research.md` exists. If it does, extract what informs behavioral requirements: user and operator needs, what the system does and why, scope-shaping constraints, feasibility evidence. Technical approaches, architecture, data models, and code patterns belong to the design.
 
-For a **roadmap deliverable**, research has been retired by the roadmap step. Read the deliverable's entry in `.sdd/{initiative}/roadmap.md` — the Outcome, In/Out scope, and Depends-on fields define the bounds. The roadmap's Problem and Motivation sections give the broader context. This is sufficient; do not seek out a research file that no longer exists.
+For a **roadmap deliverable**, research has been retired by the roadmap step. Read the deliverable's entry in `.sdd/{initiative}/roadmap.md` — Outcome, In/Out scope, and Depends-on define the bounds; Problem and Motivation give context. No research file exists.
 
 **Step 2: Discovery Interview**
 
-Interview the user about their idea or brief. If research exists, you'll already have context — focus the interview on gaps the research didn't cover. If no research exists, start from scratch.
+Interview the user until you can fill every template section unambiguously. If research exists, focus on gaps it didn't cover. Don't ask about template sections directly — ask about the problem, users, and goals.
 
-Keep asking questions until you can unambiguously fill out every section of the template. Don't ask about template sections directly - ask about their problem, users, and goals.
+Cover:
+- Problem and motivation; who feels it and how they cope today.
+- Success criteria — what observable change tells them it's working.
+- Boundaries — what's explicitly out of scope.
+- Edge cases — what could go wrong.
+- For each behavior: the channel through which someone experiences the outcome (API, CLI, UI, event, dashboard, code review surface) and the role of that someone (end user, operator, auditor, reviewer).
 
-- What problem are they solving? Why does it matter?
-- Who experiences this problem? How do they cope today?
-- What does success look like? How will they know it's working?
-- What are the boundaries? What's explicitly not included?
-- What could go wrong? What are the edge cases?
-- How will they validate the feature works? What steps will they take?
-- What would they do in the UI/CLI to verify each requirement is met?
+**Probe vague answers** — reject "fast", "secure", "user-friendly" without measurable criteria.
 
-**Probe vague answers relentlessly** - Don't accept "fast", "secure", or "user-friendly" without measurable criteria. Keep questioning until requirements are specific and testable.
+**Experienceability gate** — if no role can tell whether a candidate requirement is met, it isn't a requirement. Reshape or drop it during the interview.
 
-**Write requirements in user/domain language, not system internals** - "When content is uploaded to a store, the system must record the change" not "When a KV write succeeds, emit a StorageEvent." If you find yourself naming internal types, APIs, or data structures in a requirement, you're writing design, not specification. Requirements describe what the user does and what the system does in response, at the level a product person would understand.
-
-**NFRs are optional** - Only include non-functional requirements when there are genuine, measurable quality constraints (e.g., specific latency targets, compliance requirements). Most features don't need them.
+NFRs are optional — only include them when there are genuine, measurable quality constraints.
 
 **Step 3: Write the Specification**
 
@@ -106,30 +99,32 @@ Once you have enough information to fill out every section unambiguously, use th
 **Subagent prompt:**
 > Write the specification for {feature} at .sdd/{feature}/specification.md.
 >
+> Your job is to define the solution as a behavioral specification — what the system does for users, operators, auditors, and reviewers. The specification is agnostic of implementation details: internal types, APIs, data structures, libraries, frameworks, and architectural patterns belong to the design phase.
+>
 > **Read:**
 > - Specification template: templates/specification.template.md
 > - Research findings: `.sdd/{feature}/research.md` (if it exists)
+> - EARS syntax reference: use the `ears` skill
 >
 > **Context from discovery interview:**
 > {paste the interview findings here}
 >
 > **Template guidance:**
-> - Follow the template structure exactly
-> - Sections marked "optional" or "if needed" can be omitted entirely if not applicable
-> - Do NOT add new sections that aren't in the template
+> - Use the template's sections exactly as defined; omit any that are marked optional and don't apply.
 >
-> **Acceptance Criteria:**
-> - Every FR has at least one numbered AC, or sits in Deferred / Non-Verifiable Requirements with a stated blocker.
-> - Name the system, the artifact, and the expected value in the Then clause. "users.password_hash row changes." Not "the password is updated."
-> - Make the observable something a test can read directly — a row, a response field, a log line, a queue message.
-> - Aim for 1–3 AC per FR. Stop when each remaining behaviour has its own observable.
-> - Reject tautologies. If the Then restates the When ("when we store X, then X is stored"), drop the AC — it's plumbing covered transitively by another AC.
-> - Reject white-box assertions. If the only observable lives inside a third party or past the public interface, move the FR to Deferred / Non-Verifiable and flag it for the stakeholder. Do not invent one.
-> - If "Failure/edge cases" describes something worth verifying, promote it to its own AC.
+> **Functional Requirements:**
+> - Every FR is a single EARS statement (see the `ears` skill for patterns and combinations). The EARS sentence itself is the acceptance criterion.
+> - Write in user/domain language. Keep internal types, APIs, and data structures for the design.
+> - Each FR describes a user-experienceable outcome verifiable through a public interface. Reshape or drop candidates that can only be verified by reaching into internal state or a third party.
+> - Each FR has a named role (user, operator, auditor, reviewer) who can tell whether it holds. Reshape or drop candidates that fail this experienceability gate.
 >
-> **Non-Functional Requirements:** Only include NFRs when there are genuine, measurable quality constraints. Skip the section for typical features. NFRs are not subject to AC, TDD, or tautology checks — they state a measurable Target and a Verification mode (`app-instrumented`, `platform-observed`, or `architectural-only`). App-instrumented NFRs additionally name the metric and where it's read. They feed the design's Architecture and Instrumentation sections, never the test layer.
+> **Non-Functional Requirements:** Include NFRs only when there are genuine, measurable quality constraints. Each NFR states a measurable Target and a Verification mode (`app-instrumented`, `platform-observed`, or `architectural-only`). App-instrumented NFRs additionally name the metric and where it's read. NFRs feed the design's Architecture and Instrumentation sections exclusively.
 >
-> **QA Plan:** Linear instructions a human or agent QA pass can follow. Cover the happy path and the most important failure paths only — not every AC. Trust the automated tests for breadth; QA validates the experience. Mark each scenario `Path: happy | failure`.
+> **Acceptance Tests:**
+> - Every FR is covered by at least one AT-XX whose Given/When/Then exercises the observable described by the FR's EARS statement.
+> - Each AT-XX is exactly a Given/When/Then triple.
+> - The channel (endpoint, command, topic, dashboard, etc.) lives inside the When clause.
+> - Collapse multiple FRs into one AT when they share an observable outcome.
 >
 > Write the complete specification in one pass. Fill in every section fully. Save the document when done.
 
@@ -142,7 +137,9 @@ Use the `review` skill to perform a **Specification Review** of the specificatio
 If the review finds P0 or P1 issues, use the Task tool to launch a subagent to fix them. Do NOT fix them yourself.
 
 **Subagent prompt:**
-> Fix the following issues in the specification at .sdd/{feature}/specification.md, using the template at templates/specification.template.md as reference:
+> Fix the following issues in the specification at .sdd/{feature}/specification.md, using the template at templates/specification.template.md as reference.
+>
+> Your job is to apply the review findings below. Keep all other parts of the specification as they are.
 >
 > {paste review findings here}
 >

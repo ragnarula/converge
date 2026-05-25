@@ -6,6 +6,8 @@ version: 0.3.4
 
 # Review
 
+**Review** gates every SDD artifact — roadmap, specification, design, task breakdown, implementation — before it leaves its skill. It's invoked from each prior skill, not standalone.
+
 ## Practical Guidelines
 
 ### Project Structure
@@ -47,6 +49,8 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 **Subagent prompt:**
 > Review the roadmap for {INITIATIVE}.
 >
+> Your job is to ensure the roadmap describes outcomes only and that every deliverable is independently shippable.
+>
 > **Read these files:**
 > - Roadmap: `.sdd/{initiative}/roadmap.md`
 > - Research: `.sdd/{initiative}/research.md` (if it still exists — retired after roadmap approval)
@@ -74,10 +78,22 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 **Subagent prompt:**
 > Review the specification for {feature}.
 >
+> Your job is to ensure only buildable, verifiable, behavioral requirements reach the design phase. The spec is the solution definition, agnostic of implementation details.
+>
 > **Read these files:**
 > - Specification: .sdd/{feature}/specification.md
 > - Research: `.sdd/{feature}/research.md` (if it exists)
 > - Project conventions: use the `handbook` skill
+> - EARS syntax reference: use the `ears` skill (needed for the FR check below)
+>
+> **Load relevant domain skills.** Scan the spec and load any that apply. Use them solely for the Domain feasibility check below — flagging infeasible or contradictory requirements, NOT missing solution-space concerns.
+> - **distributed-systems**: multiple services, network coordination, eventual consistency
+> - **low-level-systems**: memory management, performance-critical paths, OS interfaces
+> - **security**: auth, untrusted input, sensitive data, compliance
+> - **infrastructure**: cloud resources, IaC, networking, disaster recovery
+> - **devops-sre**: CI/CD, deployment, observability, SLOs
+> - **data-engineering**: pipelines, ETL, schema evolution, data quality
+> - **api-design**: public/internal APIs, versioning, contracts
 >
 > **Check for:**
 > - Every requirement describes WHAT and WHY, never HOW
@@ -89,18 +105,28 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 > - No technology choices or implementation assumptions embedded in requirements
 > - If research exists, check that it was used correctly — requirements should reflect problem context and constraints from the research, not technical approaches or architecture that belong in the design
 >
-> **Acceptance Criteria checks:**
-> - Every FR has at least one AC, or sits in Deferred / Non-Verifiable Requirements with a stated blocker.
-> - Every AC's Then clause names a concrete observable: system, artifact, expected value. Flag any Then that paraphrases the When or describes intent ("password is updated", "event is emitted").
-> - Flag tautologies — Then clauses that restate the When in different words. These should be deleted, not refined.
-> - Flag white-box AC — observables that require reaching past the public interface or into a third party. These belong in Deferred, not in active FRs.
-> - Failure/edge cases prose that describes verifiable behaviour should be promoted to its own AC. Flag any.
+> **Functional Requirement checks (EARS):**
+> - Every FR is a single EARS statement using one of the canonical patterns (see the `ears` skill). Flag any FR not in EARS shape.
+> - Each FR has only a title and a `Statement:` field. Flag any FR carrying extra fields (e.g. `Verification:`, `Tested by:`) — those were removed.
+> - Flag white-box FRs — statements whose verification requires reaching past the public interface into a third party or internal-only state. The FR must describe a user-experienceable outcome, or it isn't a requirement.
+> - Flag any FR where no role (user, operator, auditor, reviewer) could tell whether it holds. Experienceability gate.
 >
 > **NFR checks:**
 > - Each NFR has a measurable Target (specific threshold, not "fast" or "scalable") and a Verification mode (`app-instrumented`, `platform-observed`, or `architectural-only`). Flag any missing either.
 > - App-instrumented NFRs additionally name the Observable (metric and where it's read). Flag any that don't.
-> - NFRs are not subject to AC checks. Do not flag them for missing AC.
+> - NFRs do not appear in the Acceptance Tests section. Flag any that do.
 > - Flag NFRs that prescribe implementation ("must use Redis"), invent Verification modes, or claim app-instrumented Verification for something inherently platform-observable.
+>
+> **Acceptance Test checks:**
+> - Each AT is a Given/When/Then triple. No other fields. Flag any AT with extras (Verifies, Channel, Method, Test name) — they were removed.
+> - Each AT's When clause names a concrete channel (endpoint, command, topic, dashboard, code-review surface). Flag When clauses that describe internal mechanics or abstract intent.
+> - Each AT's Then is a concrete observable visible through that channel. Flag Then clauses that paraphrase the When ("when X is requested, then X was requested") or assert past the channel into internal state.
+>
+> **Coverage:**
+> - Every FR's observable should appear in at least one AT's Then. List any FR whose observable is not covered by any AT.
+> - If multiple FRs share the same observable outcome, expect them to share one AT — flag for consolidation if each has its own near-duplicate AT.
+>
+> **Domain feasibility:** The spec is problem-space — what the user needs, not how the system satisfies it. Missing solution-space concerns (auth mechanisms, retry policies, schema-evolution strategies, observability tooling, etc.) belong to the design and stay out of this review. Use each loaded domain skill to flag requirements the domain recognises as infeasible — physically impossible, internally contradictory, or in conflict with hard domain constraints. Name the conflict and the constraint it breaks.
 >
 > **Severity:** P0=explicit violation, P1=implied discrepancy, P2=ambiguity, P3=consideration. Group by severity, P0 first. Reject if any P0.
 
@@ -111,35 +137,51 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 **Subagent prompt:**
 > Review the design for {feature}.
 >
+> Your job is to ensure the design is architecturally unambiguous, sound, and feasible — so an implementer can build from it without clarifying questions.
+>
 > **Read these files:**
 > - Specification: .sdd/{feature}/specification.md
 > - Design: .sdd/{feature}/design.md
 > - Research: `.sdd/{feature}/research.md` (if it exists)
 > - Project conventions: use the `handbook` skill
+> - EARS syntax reference: use the `ears` skill (FRs in the spec are EARS sentences)
 >
-> **Check for:**
+> **Load relevant domain skills.** Scan the spec and design and load any that apply. Use them to check the design's **architectural soundness** and **feasibility** — see the Domain soundness check below.
+> - **distributed-systems**: multiple services, network coordination, eventual consistency
+> - **low-level-systems**: memory management, performance-critical paths, OS interfaces
+> - **security**: auth, untrusted input, sensitive data, compliance
+> - **infrastructure**: cloud resources, IaC, networking, disaster recovery
+> - **devops-sre**: CI/CD, deployment, observability, SLOs
+> - **data-engineering**: pipelines, ETL, schema evolution, data quality
+> - **api-design**: public/internal APIs, versioning, contracts
+>
+> **Primary check — architectural unambiguity.** This is the most important thing the review enforces. An implementer reading the design should know exactly what components to build, modify, or use; what each component is responsible for; how the components fit together; and what each component's interface promises. Implementation details — *how* the inside of a component achieves its responsibility — are explicitly NOT the design's job; the design must leave them to the implementer. Flag both directions:
+> - **Architectural ambiguity (P0):** component responsibilities that admit more than one plausible design; missing or vague interfaces; unclear data flow between components; unresolved choices the design must commit to; dependencies between components that are implied rather than stated.
+> - **Over-specification (P1):** pseudo-code or type signatures that prescribe the *inside* of a component rather than its contract; design content an implementer should be free to choose at code-time. The 5–10 line Details cap exists to prevent this — flag any Details block that exceeds it or that reads like a function body rather than a contract.
+>
+> **Other checks:**
 > - Every requirement addressed by design — no orphan requirements. Unchanged behavior covered by existing tests is not an orphan. Removed functionality needs its tests removed, not new tests added.
 > - No gold-plating beyond requirements
 > - Follows project conventions (error handling, logging, naming, architecture)
-> - Clear component boundaries with explicit interfaces (inputs, outputs, errors)
-> - Dependencies between components stated, not implied
-> - Failure cases handled (dependencies unavailable, invalid inputs, partial completion)
-> - No TBDs or unresolved ambiguities
+> - Failure cases handled at the architectural level (dependencies unavailable, invalid inputs, partial completion) — *what* the response is, not *how* it's implemented.
 > - Risk assessment present with mitigations
-> - Design is concise (under 300 lines, Details sections 5-10 lines max)
+> - Design is concise (under 300 lines)
 > - If research exists, design should be grounded in its technical findings — existing patterns, integration points, and constraints identified in research should be reflected in the design. Flag designs that contradict or ignore research findings without justification.
 >
 > **Component Rationale checks:**
-> - Every Modified and Added component has a Rationale that names a specific AC or FR. Flag components whose Rationale is generic ("supports the feature") or absent.
-> - Every AC from the specification is named in at least one component's Rationale. List any uncovered AC.
-> - Plumbing components state their transitive coverage explicitly — they name the AC that exercises them through a caller. Flag components whose Rationale tries to assert standalone behaviour that just restates their implementation.
-> - Deferred / Non-Verifiable FRs from the specification each have a resolution in the Feasibility Review section (drop, narrow, or escalate). Flag any left dangling.
+> - Every Modified and Added component has a Rationale that names a specific FR. Flag components whose Rationale is generic ("supports the feature") or absent.
+> - Every FR from the specification is named in at least one component's Rationale. List any uncovered FR.
+> - Plumbing components state their transitive coverage explicitly — they name the FR that exercises them through a caller. Flag components whose Rationale tries to assert standalone behaviour that just restates their implementation.
 > - No TS-XX / ITS-XX / E2E-XX scenario blocks in the design. If present, the design is on the old template — flag for migration.
 >
 > **NFR coverage checks:**
 > - Each app-instrumented NFR from the spec has a corresponding Instrumentation entry naming the metric and the component that emits it. Flag any uncovered.
 > - Platform-observed NFRs are noted in Architecture or Risks, not assigned to a component, and not in Instrumentation. Flag misplacement.
 > - Architectural-only NFRs are explained in Architecture (which choice satisfies them) without code or instrumentation. Flag if the design quietly invents tests or metrics for them.
+>
+> **Domain soundness and feasibility:** Apply each loaded domain skill's lens to the design.
+> - **Architectural soundness:** Flag design choices the domain says are wrong or weak. Name the rule the design breaks.
+> - **Feasibility:** Flag design choices the domain recognises as infeasible — physically impossible, in conflict with platform or library capabilities, or violating hard domain constraints. Name the constraint it breaks.
 >
 > **Severity:** P0=explicit violation, P1=implied discrepancy, P2=ambiguity, P3=consideration. Group by severity, P0 first. Reject if any P0.
 
@@ -150,27 +192,45 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 **Subagent prompt:**
 > Review the task breakdown for {feature}.
 >
+> Your job is to ensure every task is demoable on its own, every requirement is covered, and the ordering lets each task proceed once its blockers are done.
+>
 > **Read these files:**
-> - Design: .sdd/{feature}/design.md
-> - Tasks: .sdd/{feature}/tasks.md
+> - Specification: `.sdd/{feature}/specification.md`
+> - Design: `.sdd/{feature}/design.md`
+> - Tasks: `.sdd/{feature}/tasks.md`
 > - Project conventions: use the `handbook` skill
 >
-> **Check for:**
-> - Every AC in the specification appears in at least one task's `Satisfies:` field. List any uncovered AC.
-> - Every Modified and Added component from the design appears in at least one task's `Components touched:` field. List any uncovered components.
-> - Every task has at least one AC in `Satisfies:`, or is explicitly justified plumbing (contract change consumed by other code) flagged via the prerequisite check. A task with no AC and no justification is a P0.
-> - No `TS-XX`, `ITS-XX`, or `E2E-XX` references — those IDs no longer exist. Flag any.
-> - The Tests bullet references AC IDs from `Satisfies:` and does not enumerate one checkbox per AC. The implementer chooses test count under TDD.
-> - No sub-AC tasks — a single AC is not split across multiple tasks. If it appears to be, the AC may be too coarse; flag for spec review.
-> - No tasks for unchanged behavior already tested, no new tests for removed functionality — just remove the old tests.
-> - Each task names exact files to read, modify, and create (including test files).
-> - Tasks are concrete enough to implement without re-reading the full design.
-> - Dependencies explicit and ordering respects them — each task ends green.
-> - Tests part of the task that implements behavior, not separate tasks.
-> - Context budget: each task + its referenced files should fit in 30–40% of a context window.
-> - Notes sections are prose only, 3–5 sentences max, no code blocks.
-> - Task descriptions follow project conventions.
-> - No overlapping tasks modifying same files without acknowledgment.
+> **Load relevant domain skills.** Scan the spec, design, and task breakdown and load any that apply. Use them for the Slice soundness check below.
+> - **distributed-systems**: multiple services, network coordination, eventual consistency
+> - **low-level-systems**: memory management, performance-critical paths, OS interfaces
+> - **security**: auth, untrusted input, sensitive data, compliance
+> - **infrastructure**: cloud resources, IaC, networking, disaster recovery
+> - **devops-sre**: CI/CD, deployment, observability, SLOs
+> - **data-engineering**: pipelines, ETL, schema evolution, data quality
+> - **api-design**: public/internal APIs, versioning, contracts
+>
+> **Per-task gate — demoable.** Every task must deliver a slice that is demoable or independently verifiable on completion. After the task lands, an outside observer should be able to point at something they see differently. Flag any task that fails this test — it's a horizontal slice (one layer only, no observable behaviour) and needs reshaping. This is the tracer-bullet test; the breakdown is only valid if every task passes it.
+>
+> **Aggregate coverage:**
+> - **Requirement coverage.** Every FR in the specification must be addressed by at least one task — the task's `What to build` prose and ACs together must exercise the FR's observable. Read all tasks together. List any uncovered FR as P0.
+> - **Acceptance test coverage.** Every AT-XX in the spec's Acceptance Tests section must be exercised in aggregate by the task ACs. A single spec AT is typically split across multiple task ACs (each task is a slice). Flag any spec AT whose union of covering task ACs is incomplete.
+> - Design-component coverage is NOT checked here — tasks don't enumerate components. It is verified at implementation review against the diff.
+>
+> **Ordering:**
+> - Each task's `Blocked by` must reference only earlier-numbered tasks, or "None". Flag forward references.
+> - The dependency graph formed by `Blocked by` must be a DAG. Flag any cycle.
+> - Each task must produce code that compiles and passes tests independently — i.e. a task can run when its blockers are done. Flag tasks that implicitly depend on a later task's work.
+>
+> **Per-task checks:**
+> - **What to build is prose.** No file paths and no code snippets inside the paragraph (decision-encoding artefacts from a prototype excepted). Flag bullet lists, checkbox lists, or pseudo-code in this section.
+> - **Acceptance criteria are Given/When/Then.** Each AC names preconditions, an action, and an observable result. Flag ACs missing a clause or written in prose.
+> - **Notes are 3–5 sentences of prose** — no code blocks. Flag overruns.
+> - **No legacy IDs or fields.** Flag any `TS-XX`, `ITS-XX`, `E2E-XX`, `Satisfies: FR-XX`, `Acceptance gate: AT-XX`, `Files to read/modify`, or explicit `Tests:` section — all removed.
+> - **No phases or grouping.** Tasks are a flat ordered list. Flag any phase headings.
+> - **No "add tests" tasks.** Testing happens inside each task, not afterwards.
+> - **No overlapping tasks** modifying the same component without explicit dependency.
+>
+> **Slice soundness:** Apply each loaded domain skill's lens to the task breakdown. Flag slice shapes or orderings that introduce real domain problems. Name the slice and the domain rule it breaks.
 >
 > **Severity:** P0=explicit violation, P1=implied discrepancy, P2=ambiguity, P3=consideration. Group by severity, P0 first. Reject if any P0.
 
@@ -181,26 +241,26 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 **Subagent prompt:**
 > Review the implementation of {feature}.
 >
+> Your job is to ensure the implementation matches the design, satisfies every spec AT, and contains no unfinished work.
+>
 > **Read these files:**
 > - Tasks: `.sdd/{feature}/tasks.md`
 > - Design: `.sdd/{feature}/design.md`
-> - Specification: `.sdd/{feature}/specification.md` (needed for AC coverage check below)
+> - Specification: `.sdd/{feature}/specification.md` (needed for FR coverage check below)
 >
 > **Steps:**
-> 1. Read .sdd/{feature}/specification.md and list every AC. Confirm each appears in tasks.md's `Satisfies:` fields. Any AC not delivered is a P0.
-> 2. Run `git diff main...HEAD` to understand scope
-> 3. Verify all design tasks are represented in the diff
-> 4. Check implementation matches design contracts and interfaces by the final task. Mid-stream tasks may implement only the slice their AC need; missing methods or branches in earlier tasks are not gaps if a later task delivers them.
-> 5. For each AC in the specification, find at least one test whose failure would mean the AC is unmet. Read it. Verify it asserts on the named observable, not a paraphrase. A test that would pass if the implementation were deleted is a P0. Spot-check 2–3 AC by mentally deleting the satisfying implementation — if the test would still pass, P0. **Do not expect tests for NFRs.** For each app-instrumented NFR, confirm the named metric/log is present in the diff. Platform-observed and architectural-only NFRs need no diff evidence.
-> 6. Search for stubs: `skip`, `todo`, `pending`, `pass` in test functions, placeholder assertions
-> 7. Test code quality: tests are held to the same standards as production code. Flag duplicated arrange blocks (extract a helper), copy-pasted assertions across tests that differ only in inputs (parameterise), inline fixtures that belong in shared helpers, unclear test names that don't state the behaviour under test, and ad-hoc mocks where a project fixture exists.
-> 8. Provisioning configs and imperative scripts (root IaC modules, env stacks, migrations, runbooks) created in a task should be linted and validated, not executed. If the diff shows an AC test passing against an applied environment, confirm via tasks.md or commit messages that the user performed the apply/run — not the implement subagent. Reusable IaC modules ARE expected to have AC tests via plan-time or policy assertions.
-> 9. Search for dead code: unused imports, variables, functions, commented-out code
-> 10. Search for SDD leakage: `FR-`, `NFR-`, `AC-`, `REQ-` in code, comments, docstrings, or test names
-> 11. Verify project conventions (use `handbook` skill): error handling, logging, naming, test structure, commit format
-> 12. Run tests, linters, and build
->
-> Stubs/dead code: forbidden unless tracked in the tasks document with a clear reason.
+> 1. Read `.sdd/{feature}/specification.md` and list every FR and AT-XX. For each FR, confirm at least one task's `What to build` and ACs address it. Any FR not delivered is P0.
+> 2. Run `git diff main...HEAD` to scope the change.
+> 3. Verify each Modified or Added component from the design appears in the diff.
+> 4. Check the final state matches the design's component contracts and interfaces. Mid-stream tasks may implement only the slice their ACs need; partial implementation in earlier tasks is fine if a later task completes it.
+> 5. For each AT-XX in the spec's Acceptance Tests, find a concrete test in the diff that exercises the AT's When and asserts its Then. A test that would still pass if the satisfying implementation were deleted is P0. Spot-check 2–3 ATs by mentally deleting the implementation.
+> 6. NFRs: for each app-instrumented NFR, confirm the named metric or log is in the diff. Platform-observed and architectural-only NFRs need no diff evidence. Don't expect tests for NFRs.
+> 7. Stubs and dead code: search for `skip`, `todo`, `pending`, `pass` in test functions, placeholder assertions, unused imports, unused functions, commented-out code. Flag each unless the task's Notes section records it as a known external blocker.
+> 8. Test code quality: tests follow the same engineering standards as production code. Flag duplicated arrange blocks, copy-pasted assertions that differ only in inputs, inline fixtures that should be shared, test names that don't state the behaviour, and ad-hoc mocks where a project fixture exists.
+> 9. IaC and live-state: provisioning configs and imperative scripts (root IaC modules, env stacks, migrations, runbooks) should be linted in the diff, not executed by the implement subagent. If an AT passed against an applied environment, confirm via tasks.md or commit messages that the user applied it. Reusable IaC modules carry acceptance tests via plan-time or policy assertions.
+> 10. SDD leakage: search for `FR-`, `NFR-`, `AT-`, `REQ-` in code, comments, docstrings, or test names.
+> 11. Verify project conventions via the `handbook` skill: error handling, logging, naming, test structure, commit format.
+> 12. Run tests, linters, and build.
 >
 > **Severity:** P0=explicit violation, P1=implied discrepancy, P2=ambiguity, P3=consideration. Group by severity, P0 first. Reject if any P0.
 >
