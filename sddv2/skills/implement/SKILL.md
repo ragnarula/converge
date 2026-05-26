@@ -31,7 +31,9 @@ Read `.sdd/{feature}/tasks.md` for the ordered task list. For each task in order
 2. Extract from `.sdd/{feature}/design.md` only the component sections this task touches.
 3. Paste both into the prompt below. The design already incorporates the specification, so the specification itself stays out.
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: sonnet`):
+> Think hard.
+>
 > Implement task {N} for {feature}.
 >
 > Your job is to deliver this tracer-bullet slice: write the AC tests, make them pass, and stop at the slice's boundary. Code that belongs to a later task stays in that task.
@@ -71,8 +73,10 @@ After all tasks are complete, use the `review` skill to perform an **Implementat
 
 ### Step 3: Fix issues (if any)
 
-If the review finds P0 or P1 issues, launch a subagent:
+If the review finds P0 or P1 issues, launch a subagent (Task tool, `model: opus`):
 
+> Think hard.
+>
 > Fix the following issues in the implementation for {feature}.
 >
 > Your job is to apply the review findings below. Keep all other code and tests as they are.

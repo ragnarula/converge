@@ -53,7 +53,9 @@ If nothing qualifies, tell the user and skip the ADR.
 
 Use the Task tool to launch a subagent.
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Think hard.
+>
 > Write an ADR for {feature} at `.sdd/{feature}/adr.md`.
 >
 > **Read these files:**

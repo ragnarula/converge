@@ -48,7 +48,9 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Roadmap Review
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Ultrathink.
+>
 > Review the roadmap for {INITIATIVE}.
 >
 > Your job is to ensure the roadmap describes outcomes only and that every deliverable is independently shippable.
@@ -78,7 +80,9 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Specification Review
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Ultrathink.
+>
 > Review the specification for {feature}.
 >
 > Your job is to ensure only buildable, verifiable, behavioral requirements reach the design phase. The spec is the solution definition, agnostic of implementation details.
@@ -138,7 +142,9 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Design Review
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Ultrathink.
+>
 > Review the design for {feature}.
 >
 > Your job is to ensure the design is architecturally unambiguous, sound, and feasible — so an implementer can build from it without clarifying questions.
@@ -194,7 +200,9 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Task Breakdown Review
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Ultrathink.
+>
 > Review the task breakdown for {feature}.
 >
 > Your job is to ensure every task is demoable on its own, every requirement is covered, and the ordering lets each task proceed once its blockers are done.
@@ -244,7 +252,9 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Implementation Review
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Ultrathink.
+>
 > Review the implementation of {feature}.
 >
 > Your job is to ensure the implementation matches the design, satisfies every spec AT, and contains no unfinished work.

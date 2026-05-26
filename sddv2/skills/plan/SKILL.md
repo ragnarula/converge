@@ -20,7 +20,9 @@ Copy `templates/design.template.md` to `.sdd/{feature}/design.md` if it doesn't 
 
 **Step 1: Write the design.** Launch a subagent. The Task Breakdown section is owned by the `tasks` skill — leave it empty.
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Think hard.
+>
 > Write the design document for {feature} at `.sdd/{feature}/design.md`.
 >
 > Your job is to translate the specification's requirements into an architectural design, expressed as a **set of components**:
@@ -63,8 +65,10 @@ Copy `templates/design.template.md` to `.sdd/{feature}/design.md` if it doesn't 
 
 **Step 2: Review.** Use the `review` skill to perform a **Design Review** of `.sdd/{feature}/design.md`.
 
-**Step 3: Fix issues (if any).** If the review finds P0 or P1 issues, launch a subagent:
+**Step 3: Fix issues (if any).** If the review finds P0 or P1 issues, launch a subagent (Task tool, `model: opus`):
 
+> Think hard.
+>
 > Fix the following issues in the design at `.sdd/{feature}/design.md`, using `.sdd/{feature}/specification.md` as reference. Research at `.sdd/{feature}/research.md` may also exist; for roadmap deliverables it has been retired and should not be sought.
 >
 > Your job is to apply the review findings below. Keep all other parts of the design as they are.

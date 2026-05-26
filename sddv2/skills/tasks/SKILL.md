@@ -18,7 +18,9 @@ All SDD artifacts live in `.sdd/{feature}/`.
 
 Launch a subagent to write the task breakdown.
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Think hard.
+>
 > Create the task breakdown for {feature} at `.sdd/{feature}/tasks.md`.
 >
 > Your job is to break the design into **tracer-bullet tasks**. Each task is a thin vertical slice that delivers concrete value on its own — demoable or verifiable in isolation, not a horizontal slice of one layer. Prefer many thin slices over few thick ones.
@@ -58,8 +60,10 @@ Use the `review` skill for a **Task Breakdown Review** of `.sdd/{feature}/tasks.
 
 ### Fix issues (if any)
 
-If the review finds P0 or P1 issues, launch a subagent:
+If the review finds P0 or P1 issues, launch a subagent (Task tool, `model: opus`):
 
+> Think hard.
+>
 > Fix the following issues in the task breakdown at `.sdd/{feature}/tasks.md`, using `.sdd/{feature}/design.md` and `.sdd/{feature}/specification.md` as reference.
 >
 > Your job is to apply the review findings below. Keep all other parts of the task breakdown as they are.

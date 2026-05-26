@@ -98,7 +98,9 @@ NFRs are optional — only include them when there are genuine, measurable quali
 
 Once you have enough information to fill out every section unambiguously, use the Task tool to launch a subagent that writes the specification. Do NOT write it yourself.
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Think hard.
+>
 > Write the specification for {feature} at .sdd/{feature}/specification.md.
 >
 > Your job is to define the solution as a behavioral specification — what the system does for users, operators, auditors, and reviewers. The specification is agnostic of implementation details: internal types, APIs, data structures, libraries, frameworks, and architectural patterns belong to the design phase.
@@ -139,7 +141,9 @@ Use the `review` skill to perform a **Specification Review** of the specificatio
 
 If the review finds P0 or P1 issues, use the Task tool to launch a subagent to fix them. Do NOT fix them yourself.
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Think hard.
+>
 > Fix the following issues in the specification at .sdd/{feature}/specification.md, using the template at templates/specification.template.md as reference.
 >
 > Your job is to apply the review findings below. Keep all other parts of the specification as they are.

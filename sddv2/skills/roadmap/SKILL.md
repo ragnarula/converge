@@ -96,7 +96,9 @@ phase, which will rediscover it.
 You MUST use the Task tool to launch a subagent that writes the roadmap.
 Do NOT write it yourself.
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Think hard.
+>
 > Write the roadmap for {INITIATIVE} at `.sdd/{initiative}/roadmap.md`.
 >
 > **Read:**
@@ -166,7 +168,9 @@ at `.sdd/{initiative}/roadmap.md`.
 If the review finds P0 or P1 issues, use the Task tool to launch a
 subagent to fix them. Do NOT fix them yourself.
 
-**Subagent prompt:**
+**Subagent prompt** (Task tool, `model: opus`):
+> Think hard.
+>
 > Fix the following issues in the roadmap at
 > `.sdd/{initiative}/roadmap.md`. If `.sdd/{initiative}/research.md`
 > still exists (pre-approval refinement), use it as reference;

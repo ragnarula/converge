@@ -119,7 +119,7 @@ Go deep on the approaches that survived. Check feasibility — can this actually
 
 The research document should tell the story: what the problem is, what the landscape looks like, what options were considered, what was chosen and why. It's not a list of facts — it's a narrative that gives the reader the same confidence you and the user built together.
 
-Use the Task tool to delegate writing, providing the conversation context and findings.
+Use the Task tool (`model: opus`) to delegate writing, providing the conversation context and findings. Begin the subagent prompt with `Think hard.`
 
 The document should cover:
 - Problem context and why it matters
