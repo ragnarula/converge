@@ -8,6 +8,8 @@ description: Implement SDD features task-by-task following the design document. 
 
 **Implement** delivers the tasks one at a time, with each task gated by its acceptance criteria. It runs after tasks and before merge.
 
+Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user and commit messages.
+
 All SDD artifacts live in `.sdd/{feature}/`.
 
 ## Orchestrator discipline
@@ -41,6 +43,8 @@ Read `.sdd/{feature}/tasks.md` for the ordered task list. For each task in order
 > {paste relevant design sections here}
 >
 > **Project guidelines:** Use the `handbook` skill.
+>
+> **Language standard:** Use the `language` skill for tone and vocabulary in all output, including commit messages.
 >
 > **Testing discipline:** Use the `tdd` skill. It owns red-green-refactor, the dependency-count heuristic, the existing-suite exploration rule, test code quality, and the anti-patterns. The `mocking` and `interface-design` skills load transitively from there.
 >

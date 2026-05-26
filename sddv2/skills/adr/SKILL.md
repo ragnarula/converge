@@ -8,6 +8,8 @@ version: 0.1.1
 
 Write an Architecture Decision Record (ADR) capturing key technical decisions made during a feature's research and design. Run this after implementation, before merge.
 
+Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output.
+
 ## When to Write an ADR
 
 Not every feature needs one. Write an ADR when:

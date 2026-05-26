@@ -10,6 +10,8 @@ Guide the user through understanding a problem and its solution space before com
 
 The process has five phases: **Observe → Orient → Diverge → Evaluate → Synthesize.** The first two are about the problem. The middle two are about the solution space. The last ties it together. Don't skip phases. Don't rush. The user's confidence in the direction matters more than speed.
 
+Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+
 ## Practical Guidelines
 
 ### Project Structure

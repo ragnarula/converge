@@ -8,6 +8,8 @@ description: Break a design into demoable tracer-bullet tasks. Use this skill wh
 
 **Tasks** breaks the design into demoable tracer-bullet tasks. It runs after plan and before implement.
 
+Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+
 All SDD artifacts live in `.sdd/{feature}/`.
 
 ## Process
@@ -26,6 +28,7 @@ Launch a subagent to write the task breakdown.
 > - Design: `.sdd/{feature}/design.md`
 > - Specification: `.sdd/{feature}/specification.md`
 > - Project conventions: use the `handbook` skill
+> - Language standard: use the `language` skill
 >
 > **For each task, write:**
 > - **What to build** — a short prose paragraph describing the end-to-end behavior the task delivers. Use plain prose to name *what* the slice does. Keep file paths and code snippets out of this paragraph; the implementation agent will curate them at run time.

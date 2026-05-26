@@ -12,6 +12,8 @@ multi-spec. The roadmap turns a large initiative into a sequence of
 **vertical deliverables** — each one a user/operator outcome that ships
 end-to-end on its own and fits one spec.
 
+Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+
 ## When to invoke
 
 - Triggered by `research`: research synthesis concludes the work

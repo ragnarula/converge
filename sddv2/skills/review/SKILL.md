@@ -8,6 +8,8 @@ version: 0.3.4
 
 **Review** gates every SDD artifact — roadmap, specification, design, task breakdown, implementation — before it leaves its skill. It's invoked from each prior skill, not standalone.
 
+Both this orchestrator and every reviewer subagent it launches follow the `language` skill for tone and vocabulary in all output, including review reports.
+
 ## Practical Guidelines
 
 ### Project Structure
@@ -55,6 +57,7 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 > - Roadmap: `.sdd/{initiative}/roadmap.md`
 > - Research: `.sdd/{initiative}/research.md` (if it still exists — retired after roadmap approval)
 > - Project conventions: use the `handbook` skill
+> - Language standard: use the `language` skill
 >
 > **Check for:**
 > - **Outcomes only.** No architecture, components, libraries, code, file paths, or data shapes anywhere in the document. Flag any implementation detail. The roadmap's job is what users/operators can do after each step, not how it's built.
@@ -84,6 +87,7 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 > - Specification: .sdd/{feature}/specification.md
 > - Research: `.sdd/{feature}/research.md` (if it exists)
 > - Project conventions: use the `handbook` skill
+> - Language standard: use the `language` skill
 > - EARS syntax reference: use the `ears` skill (needed for the FR check below)
 >
 > **Load relevant domain skills.** Scan the spec and load any that apply. Use them solely for the Domain feasibility check below — flagging infeasible or contradictory requirements, NOT missing solution-space concerns.
@@ -144,6 +148,7 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 > - Design: .sdd/{feature}/design.md
 > - Research: `.sdd/{feature}/research.md` (if it exists)
 > - Project conventions: use the `handbook` skill
+> - Language standard: use the `language` skill
 > - EARS syntax reference: use the `ears` skill (FRs in the spec are EARS sentences)
 >
 > **Load relevant domain skills.** Scan the spec and design and load any that apply. Use them to check the design's **architectural soundness** and **feasibility** — see the Domain soundness check below.
@@ -199,6 +204,7 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 > - Design: `.sdd/{feature}/design.md`
 > - Tasks: `.sdd/{feature}/tasks.md`
 > - Project conventions: use the `handbook` skill
+> - Language standard: use the `language` skill
 >
 > **Load relevant domain skills.** Scan the spec, design, and task breakdown and load any that apply. Use them for the Slice soundness check below.
 > - **distributed-systems**: multiple services, network coordination, eventual consistency
@@ -247,6 +253,7 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 > - Tasks: `.sdd/{feature}/tasks.md`
 > - Design: `.sdd/{feature}/design.md`
 > - Specification: `.sdd/{feature}/specification.md` (needed for FR coverage check below)
+> - Language standard: use the `language` skill
 >
 > **Steps:**
 > 1. Read `.sdd/{feature}/specification.md` and list every FR and AT-XX. For each FR, confirm at least one task's `What to build` and ACs address it. Any FR not delivered is P0.

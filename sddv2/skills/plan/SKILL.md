@@ -8,6 +8,8 @@ description: Create and refine design documents for features using the SDD metho
 
 **Plan** turns the specification into an architectural design expressed as a set of components. It runs after requirements and before tasks.
 
+Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+
 All SDD artifacts live in `.sdd/{feature}/`. The `.sdd/index.md` is owned by `requirements` and `roadmap` — do not modify it from `plan`.
 
 ## Process
@@ -39,6 +41,7 @@ Copy `templates/design.template.md` to `.sdd/{feature}/design.md` if it doesn't 
 > - Project conventions: use the `handbook` skill
 > - EARS syntax reference: use the `ears` skill (FRs are EARS sentences)
 > - Interface design rules: use the `interface-design` skill — components must be designed for testability (accept dependencies, return results, small surfaces)
+> - Language standard: use the `language` skill
 > - Relevant domain skills (security, api-design, distributed-systems, data-engineering, devops-sre, infrastructure, low-level-systems) — load any that apply.
 >
 > **Component rules:**

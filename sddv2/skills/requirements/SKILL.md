@@ -8,6 +8,8 @@ version: 0.3.3
 
 **Requirements** turns an idea into a behavioral specification. It runs after research (if any) and before plan.
 
+Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+
 ## Practical Guidelines
 
 ### Project Structure
@@ -105,6 +107,7 @@ Once you have enough information to fill out every section unambiguously, use th
 > - Specification template: templates/specification.template.md
 > - Research findings: `.sdd/{feature}/research.md` (if it exists)
 > - EARS syntax reference: use the `ears` skill
+> - Language standard: use the `language` skill
 >
 > **Context from discovery interview:**
 > {paste the interview findings here}

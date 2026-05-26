@@ -36,6 +36,7 @@ Loaded by the workflow skills rather than invoked directly.
 | `interface-design` | Design components for testability (accept dependencies, return results, small surface) | `plan` |
 | `tdd` | Red-green-refactor with the dependency-count heuristic for test depth | `implement` |
 | `mocking` | Mock at system boundaries only, never internal modules | `tdd` |
+| `language` | Active voice, simple English, no metaphors or slang — applied to docs and to interactive replies | every workflow skill |
 
 ## The Handbook
 
