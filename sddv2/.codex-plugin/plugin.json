@@ -1,0 +1,6 @@
+{
+  "name": "sddv2",
+  "version": "0.7.3",
+  "description": "Spec Driven Development v2 — focused skills for structured feature development: roadmap, research, requirements (EARS + GWT acceptance tests), plan (component-based architectural design), tasks (demoable tracer-bullet slices), implement (TDD with dependency-count heuristic), and review at every step.",
+  "skills": "./skills/"
+}
