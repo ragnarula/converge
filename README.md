@@ -5,8 +5,10 @@ A Claude Code plugin for structured feature development. Turn an idea into EARS 
 ## Workflow
 
 ```
-roadmap (optional) → research (optional) → requirements → plan → tasks → implement → review → adr
+roadmap (optional) → research (optional) → requirements | extract-spec → plan → tasks → implement → review → adr
 ```
+
+Use `requirements` for greenfield work, `extract-spec` for refactors and migrations.
 
 Each step is a skill you can invoke independently or chain via `express`.
 
@@ -17,6 +19,7 @@ Each step is a skill you can invoke independently or chain via `express`.
 | `research` | Guided problem exploration (Observe → Orient → Diverge → Evaluate → Synthesize) | `.sdd/{feature}/research.md` |
 | `roadmap` | Break a too-large initiative into vertical deliverables, each sized to one spec | `.sdd/{initiative}/roadmap.md` |
 | `requirements` | Discovery interview → behavioral specification in EARS, with Given/When/Then acceptance tests | `.sdd/{feature}/specification.md` |
+| `extract-spec` | Sibling to `requirements` for refactors and migrations. Reads existing code, interviews the user, produces the same spec shape with each preserved FR backed by an existing test or a pin test scheduled before refactor work begins | `.sdd/{feature}/specification.md` |
 | `plan` | Architectural design as a set of components (Modified / Added / Used) traceable to FRs | `.sdd/{feature}/design.md` |
 | `tasks` | Demoable tracer-bullet tasks with prose `What to build`, Given/When/Then ACs, and explicit `Blocked by` | `.sdd/{feature}/tasks.md` |
 | `implement` | One subagent per task, TDD against the task's ACs, review at the end | commits |
@@ -79,6 +82,7 @@ Run the `setup` skill once per project to register these hooks and discover proj
 Use roadmap to break {initiative} into deliverables
 Use research to explore the problem space for {feature}
 Use requirements to write a spec for {feature}
+Use extract-spec to write a spec for a refactor or migration of {area}
 Use plan to design {feature}
 Use tasks to break down {feature}
 Use implement to build {feature}
