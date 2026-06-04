@@ -10,7 +10,7 @@ version: 0.1.0
 
 It runs before `plan`, as a sibling to `requirements`, when the work preserves existing behavior.
 
-Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+Both this orchestrator and every subagent it spawns follow the `language` skill for tone and vocabulary in all output, including replies to the user.
 
 All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
 
@@ -72,9 +72,9 @@ Ask the user why the refactor or migration is happening. The motivation goes in 
 
 ### Step 5: Write the specification
 
-Write the specification in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly while preserving the same inputs, output path, and review gate.
+Spawn a subagent to write the specification. Invoking this skill authorizes that subagent.
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Write the specification for {feature} at `{artifact_dir}/specification.md`.
@@ -110,7 +110,7 @@ Use the `review` skill for a Specification Review of `{artifact_dir}/specificati
 
 ### Step 7: Fix issues (if any)
 
-If the review finds P0 or P1 issues, fix them in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the fix directly.
+If the review finds P0 or P1 issues, spawn a subagent to fix them.
 
 > Think hard.
 >

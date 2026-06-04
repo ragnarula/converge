@@ -8,7 +8,7 @@ description: Create and refine design documents for features using the SDD metho
 
 **Plan** turns the specification into an architectural design expressed as a set of components. It runs after requirements and before tasks.
 
-Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+Both this orchestrator and every subagent it spawns follow the `language` skill for tone and vocabulary in all output, including replies to the user.
 
 All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`. The `.sdd/index.md` is owned by `requirements` and `roadmap` — do not modify it from `plan`.
 
@@ -18,9 +18,9 @@ All SDD artifacts live in the feature artifact directory. Standalone features us
 
 Copy `templates/design.template.md` to `{artifact_dir}/design.md` if it doesn't exist.
 
-**Step 1: Write the design.** Use an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly.
+**Step 1: Write the design.** Spawn a subagent to write the design.
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Write the design document for {feature} at `{artifact_dir}/design.md`.
@@ -65,7 +65,7 @@ Copy `templates/design.template.md` to `{artifact_dir}/design.md` if it doesn't 
 
 **Step 2: Review.** Use the `review` skill to perform a **Design Review** of `{artifact_dir}/design.md`.
 
-**Step 3: Fix issues (if any).** If the review finds P0 or P1 issues, fix them in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the fix directly.
+**Step 3: Fix issues (if any).** If the review finds P0 or P1 issues, spawn a subagent to fix them.
 
 > Think hard.
 >

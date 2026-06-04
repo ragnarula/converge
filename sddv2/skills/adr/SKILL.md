@@ -8,7 +8,7 @@ version: 0.1.1
 
 Write an Architecture Decision Record (ADR) capturing key technical decisions made during a feature's research and design. Run this after implementation, before merge.
 
-Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output.
+Both this orchestrator and every subagent it spawns follow the `language` skill for tone and vocabulary in all output.
 
 ## When to Write an ADR
 
@@ -51,9 +51,9 @@ If nothing qualifies, tell the user and skip the ADR.
 
 ### Step 2: Write the ADR
 
-Write the ADR in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly.
+Spawn a subagent to write the ADR. Invoking this skill authorizes that subagent.
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Write an ADR for {feature} at `{artifact_dir}/adr.md`.

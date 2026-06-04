@@ -8,7 +8,7 @@ version: 0.3.3
 
 **Requirements** turns an idea into a behavioral specification. It runs after research (if any) and before plan.
 
-Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+Both this orchestrator and every subagent it spawns follow the `language` skill for tone and vocabulary in all output, including replies to the user.
 
 ## Practical Guidelines
 
@@ -96,9 +96,9 @@ NFRs are optional — only include them when there are genuine, measurable quali
 
 **Step 3: Write the Specification**
 
-Once you have enough information to fill out every section unambiguously, write the specification in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly while preserving the same inputs, output path, and review gate.
+Once you have enough information to fill out every section unambiguously, spawn a subagent to write the specification.
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Write the specification for {feature} at `{artifact_dir}/specification.md`.
@@ -139,9 +139,9 @@ Use the `review` skill to perform a **Specification Review** of the specificatio
 
 **Step 5: Fix issues (if any)**
 
-If the review finds P0 or P1 issues, fix them in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the fix directly while preserving the same scope.
+If the review finds P0 or P1 issues, spawn a subagent to fix them while preserving the same scope.
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Fix the following issues in the specification at `{artifact_dir}/specification.md`, using the template at templates/specification.template.md as reference.

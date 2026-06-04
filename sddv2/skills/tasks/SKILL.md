@@ -8,7 +8,7 @@ description: Break a design into demoable tracer-bullet tasks. Use this skill wh
 
 **Tasks** breaks the design into demoable tracer-bullet tasks. It runs after plan and before implement.
 
-Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+Both this orchestrator and every subagent it spawns follow the `language` skill for tone and vocabulary in all output, including replies to the user.
 
 All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
 
@@ -16,9 +16,9 @@ All SDD artifacts live in the feature artifact directory. Standalone features us
 
 ### Task Breakdown
 
-Write the task breakdown in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly.
+Spawn a subagent to write the task breakdown.
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Create the task breakdown for {feature} at `{artifact_dir}/tasks.md`.
@@ -60,7 +60,7 @@ Use the `review` skill for a **Task Breakdown Review** of `{artifact_dir}/tasks.
 
 ### Fix issues (if any)
 
-If the review finds P0 or P1 issues, fix them in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the fix directly.
+If the review finds P0 or P1 issues, spawn a subagent to fix them.
 
 > Think hard.
 >

@@ -8,7 +8,7 @@ version: 0.3.4
 
 **Review** gates every SDD artifact — roadmap, specification, design, task breakdown, implementation — before it leaves its skill. It's invoked from each prior skill, not standalone.
 
-Both this orchestrator and every delegated reviewer it uses follow the `language` skill for tone and vocabulary in all output, including review reports.
+Both this orchestrator and every reviewer subagent it spawns follow the `language` skill for tone and vocabulary in all output, including review reports.
 
 ## Practical Guidelines
 
@@ -36,9 +36,9 @@ Load relevant skills and apply their mindset and practices throughout review.
 
 ## Process
 
-Identify the review type requested, then follow ONLY that type's section below. Each section has preparation steps and an isolated-work prompt template.
+Identify the review type requested, then follow ONLY that type's section below. Each section has preparation steps and a subagent prompt template.
 
-**CRITICAL**: Perform each review in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the review directly. The reviewer reads files directly — do NOT paste full documents into the prompt.
+**CRITICAL**: Spawn a subagent for each review. Invoking this skill authorizes that subagent. The reviewer reads files directly — do NOT paste full documents into the prompt.
 
 ### Severity Levels
 
@@ -48,7 +48,7 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Roadmap Review
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Review the roadmap for {INITIATIVE}.
@@ -80,7 +80,7 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Specification Review
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Review the specification for {feature}.
@@ -142,7 +142,7 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Design Review
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Review the design for {feature}.
@@ -200,7 +200,7 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Task Breakdown Review
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Review the task breakdown for {feature}.
@@ -252,7 +252,7 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Implementation Review
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Review the implementation of {feature}.

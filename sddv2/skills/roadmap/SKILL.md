@@ -12,7 +12,7 @@ multi-spec. The roadmap turns a large initiative into a sequence of
 **vertical deliverables** — each one a user/operator outcome that ships
 end-to-end on its own and fits one spec.
 
-Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+Both this orchestrator and every subagent it spawns follow the `language` skill for tone and vocabulary in all output, including replies to the user.
 
 ## When to invoke
 
@@ -93,9 +93,9 @@ phase, which will rediscover it.
 
 **Step 2: Write the roadmap**
 
-Write the roadmap in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly while preserving the same inputs, output path, and review gate.
+Spawn a subagent to write the roadmap. Invoking this skill authorizes that subagent.
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Write the roadmap for {INITIATIVE} at `.sdd/{initiative}/roadmap.md`.
@@ -164,12 +164,9 @@ at `.sdd/{initiative}/roadmap.md`.
 
 **Step 4: Fix issues (if any)**
 
-If the review finds P0 or P1 issues, fix them in an isolated work
-context. Use delegated work if the runtime supports it; invoking this
-skill authorizes that delegation. If delegated work is unavailable,
-perform the fix directly.
+If the review finds P0 or P1 issues, spawn a subagent to fix them.
 
-**Delegated-work prompt** (use a high-capability reasoning model):
+**Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Fix the following issues in the roadmap at

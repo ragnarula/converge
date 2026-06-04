@@ -10,7 +10,7 @@ Guide the user through understanding a problem and its solution space before com
 
 The process has five phases: **Observe → Orient → Diverge → Evaluate → Synthesize.** The first two are about the problem. The middle two are about the solution space. The last ties it together. Don't skip phases. Don't rush. The user's confidence in the direction matters more than speed.
 
-Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+Both this orchestrator and every subagent it spawns follow the `language` skill for tone and vocabulary in all output, including replies to the user.
 
 ## Practical Guidelines
 
@@ -119,7 +119,7 @@ Go deep on the approaches that survived. Check feasibility — can this actually
 
 The research document should tell the story: what the problem is, what the landscape looks like, what options were considered, what was chosen and why. It's not a list of facts — it's a narrative that gives the reader the same confidence you and the user built together.
 
-Write the document in an isolated work context, providing the conversation context and findings. Use delegated work with a high-capability reasoning model if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly. Begin the work prompt with `Think hard.`
+Spawn a subagent to write the document, providing the conversation context and findings. Invoking this skill authorizes that subagent. Begin the subagent prompt with `Think hard.`
 
 The document should cover:
 - Problem context and why it matters

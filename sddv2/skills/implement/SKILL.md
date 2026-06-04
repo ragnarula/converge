@@ -1,14 +1,14 @@
 ---
 name: implement
 version: 0.2.3
-description: Implement SDD features task-by-task following the design document. Use this skill when implementing features or auto-implementing designs. One isolated work context per task, review at the end. Use the tasks skill for task breakdown.
+description: Implement SDD features task-by-task following the design document. Use this skill when implementing features or auto-implementing designs. One subagent per task, review at the end. Use the tasks skill for task breakdown.
 ---
 
 # Implement
 
 **Implement** delivers the tasks one at a time, with each task gated by its acceptance criteria. It runs after tasks and before merge.
 
-Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user and commit messages.
+Both this orchestrator and every subagent it spawns follow the `language` skill for tone and vocabulary in all output, including replies to the user and commit messages.
 
 All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
 
@@ -16,9 +16,9 @@ All SDD artifacts live in the feature artifact directory. Standalone features us
 
 You are a coordinator. Keep your own context lean across all tasks:
 
-- Your primary jobs are to extract task context, run each task in an isolated work context, track progress, and relay review findings.
-- Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform one task at a time directly with the same context discipline.
-- Reading source files, running tests, and invoking linters or builds belongs inside the isolated work context for the current task.
+- Your primary jobs are to extract task context, spawn one subagent per task, track progress, and relay review findings.
+- Invoking this skill authorizes spawning those task subagents.
+- Reading source files, running tests, and invoking linters or builds belongs inside the current task's subagent.
 - When reading SDD documents, extract only the section the current task needs.
 - Run task work one at a time.
 
@@ -26,13 +26,13 @@ You are a coordinator. Keep your own context lean across all tasks:
 
 ### Step 1: Implement each task
 
-Read `{artifact_dir}/tasks.md` for the ordered task list. For each task in order, prepare an isolated work context:
+Read `{artifact_dir}/tasks.md` for the ordered task list. For each task in order, prepare and spawn a subagent:
 
 1. Extract the single task from `{artifact_dir}/tasks.md` (Status, Blocked by, What to build, Acceptance criteria, Notes).
 2. Extract from `{artifact_dir}/design.md` only the component sections this task touches.
 3. Paste both into the prompt below. The design already incorporates the specification, so the specification itself stays out.
 
-**Delegated-work prompt** (use an implementation-capable model):
+**Subagent prompt** (use an implementation-capable model):
 > Think hard.
 >
 > Implement task {N} for {feature}.
@@ -74,7 +74,7 @@ After all tasks are complete, use the `review` skill to perform an **Implementat
 
 ### Step 3: Fix issues (if any)
 
-If the review finds P0 or P1 issues, fix them in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the fix directly.
+If the review finds P0 or P1 issues, spawn a subagent to fix them.
 
 > Think hard.
 >

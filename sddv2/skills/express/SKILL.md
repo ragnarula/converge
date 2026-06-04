@@ -22,12 +22,12 @@ If neither exists, tell the user to run the `research` skill first and stop.
 
 You are a coordinator across the full workflow. Keep your context lean:
 - Do NOT read source code, test files, or SDD documents yourself except when a skill step explicitly requires it
-- Each skill you invoke manages its own isolated work contexts. Use delegated work where available; invoking express authorizes delegated work for each workflow skill it runs. If delegated work is unavailable, let the skill run directly with the same context discipline
+- Each skill you invoke spawns its own subagents. Invoking express authorizes subagents for each workflow skill it runs
 - Your only jobs: invoke skills in sequence, relay user input when needed, report results
 
 ## Process
 
-**CRITICAL**: Execute ONE step at a time. Never run multiple delegated-work steps in a single message. Wait for each step to complete before starting the next.
+**CRITICAL**: Execute ONE step at a time. Never spawn multiple subagents in a single message. Wait for each step to complete before starting the next.
 
 **CRITICAL**: Do NOT stop between steps unless user input is genuinely required (e.g., the `requirements` skill needs a discovery interview answer, or a review finds P0 issues that need user decision). If a step completes successfully, move immediately to the next step.
 
