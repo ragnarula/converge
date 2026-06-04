@@ -16,7 +16,7 @@ All SDD artifacts live in the feature artifact directory. Standalone features us
 
 ### Task Breakdown
 
-Write the task breakdown in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly.
+Write the task breakdown in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly.
 
 **Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
@@ -60,7 +60,7 @@ Use the `review` skill for a **Task Breakdown Review** of `{artifact_dir}/tasks.
 
 ### Fix issues (if any)
 
-If the review finds P0 or P1 issues, fix them in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the fix directly.
+If the review finds P0 or P1 issues, fix them in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the fix directly.
 
 > Think hard.
 >

@@ -38,7 +38,7 @@ Load relevant skills and apply their mindset and practices throughout review.
 
 Identify the review type requested, then follow ONLY that type's section below. Each section has preparation steps and an isolated-work prompt template.
 
-**CRITICAL**: Perform each review in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the review directly. The reviewer reads files directly — do NOT paste full documents into the prompt.
+**CRITICAL**: Perform each review in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the review directly. The reviewer reads files directly — do NOT paste full documents into the prompt.
 
 ### Severity Levels
 

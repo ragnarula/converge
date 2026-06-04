@@ -119,7 +119,7 @@ Go deep on the approaches that survived. Check feasibility — can this actually
 
 The research document should tell the story: what the problem is, what the landscape looks like, what options were considered, what was chosen and why. It's not a list of facts — it's a narrative that gives the reader the same confidence you and the user built together.
 
-Write the document in an isolated work context, providing the conversation context and findings. Prefer delegated work with a high-capability reasoning model if the runtime supports it; otherwise perform the step directly. Begin the work prompt with `Think hard.`
+Write the document in an isolated work context, providing the conversation context and findings. Use delegated work with a high-capability reasoning model if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly. Begin the work prompt with `Think hard.`
 
 The document should cover:
 - Problem context and why it matters

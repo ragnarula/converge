@@ -96,7 +96,7 @@ NFRs are optional — only include them when there are genuine, measurable quali
 
 **Step 3: Write the Specification**
 
-Once you have enough information to fill out every section unambiguously, write the specification in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly while preserving the same inputs, output path, and review gate.
+Once you have enough information to fill out every section unambiguously, write the specification in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly while preserving the same inputs, output path, and review gate.
 
 **Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
@@ -139,7 +139,7 @@ Use the `review` skill to perform a **Specification Review** of the specificatio
 
 **Step 5: Fix issues (if any)**
 
-If the review finds P0 or P1 issues, fix them in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the fix directly while preserving the same scope.
+If the review finds P0 or P1 issues, fix them in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the fix directly while preserving the same scope.
 
 **Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.

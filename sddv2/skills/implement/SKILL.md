@@ -17,7 +17,7 @@ All SDD artifacts live in the feature artifact directory. Standalone features us
 You are a coordinator. Keep your own context lean across all tasks:
 
 - Your primary jobs are to extract task context, run each task in an isolated work context, track progress, and relay review findings.
-- Prefer delegated work if the runtime supports it. If not, perform one task at a time directly with the same context discipline.
+- Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform one task at a time directly with the same context discipline.
 - Reading source files, running tests, and invoking linters or builds belongs inside the isolated work context for the current task.
 - When reading SDD documents, extract only the section the current task needs.
 - Run task work one at a time.
@@ -74,7 +74,7 @@ After all tasks are complete, use the `review` skill to perform an **Implementat
 
 ### Step 3: Fix issues (if any)
 
-If the review finds P0 or P1 issues, fix them in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the fix directly.
+If the review finds P0 or P1 issues, fix them in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the fix directly.
 
 > Think hard.
 >

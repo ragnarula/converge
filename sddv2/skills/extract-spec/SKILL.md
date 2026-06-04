@@ -72,7 +72,7 @@ Ask the user why the refactor or migration is happening. The motivation goes in 
 
 ### Step 5: Write the specification
 
-Write the specification in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly while preserving the same inputs, output path, and review gate.
+Write the specification in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly while preserving the same inputs, output path, and review gate.
 
 **Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
@@ -110,7 +110,7 @@ Use the `review` skill for a Specification Review of `{artifact_dir}/specificati
 
 ### Step 7: Fix issues (if any)
 
-If the review finds P0 or P1 issues, fix them in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the fix directly.
+If the review finds P0 or P1 issues, fix them in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the fix directly.
 
 > Think hard.
 >

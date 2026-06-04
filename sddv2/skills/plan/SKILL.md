@@ -18,7 +18,7 @@ All SDD artifacts live in the feature artifact directory. Standalone features us
 
 Copy `templates/design.template.md` to `{artifact_dir}/design.md` if it doesn't exist.
 
-**Step 1: Write the design.** Use an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly.
+**Step 1: Write the design.** Use an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly.
 
 **Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
@@ -65,7 +65,7 @@ Copy `templates/design.template.md` to `{artifact_dir}/design.md` if it doesn't 
 
 **Step 2: Review.** Use the `review` skill to perform a **Design Review** of `{artifact_dir}/design.md`.
 
-**Step 3: Fix issues (if any).** If the review finds P0 or P1 issues, fix them in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the fix directly.
+**Step 3: Fix issues (if any).** If the review finds P0 or P1 issues, fix them in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the fix directly.
 
 > Think hard.
 >

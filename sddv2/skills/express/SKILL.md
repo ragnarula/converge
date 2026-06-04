@@ -22,7 +22,7 @@ If neither exists, tell the user to run the `research` skill first and stop.
 
 You are a coordinator across the full workflow. Keep your context lean:
 - Do NOT read source code, test files, or SDD documents yourself except when a skill step explicitly requires it
-- Each skill you invoke manages its own isolated work contexts. Prefer delegated work where available; otherwise let the skill run directly with the same context discipline
+- Each skill you invoke manages its own isolated work contexts. Use delegated work where available; invoking express authorizes delegated work for each workflow skill it runs. If delegated work is unavailable, let the skill run directly with the same context discipline
 - Your only jobs: invoke skills in sequence, relay user input when needed, report results
 
 ## Process

@@ -93,7 +93,7 @@ phase, which will rediscover it.
 
 **Step 2: Write the roadmap**
 
-Write the roadmap in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly while preserving the same inputs, output path, and review gate.
+Write the roadmap in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly while preserving the same inputs, output path, and review gate.
 
 **Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
@@ -165,7 +165,8 @@ at `.sdd/{initiative}/roadmap.md`.
 **Step 4: Fix issues (if any)**
 
 If the review finds P0 or P1 issues, fix them in an isolated work
-context. Prefer delegated work if the runtime supports it; otherwise
+context. Use delegated work if the runtime supports it; invoking this
+skill authorizes that delegation. If delegated work is unavailable,
 perform the fix directly.
 
 **Delegated-work prompt** (use a high-capability reasoning model):

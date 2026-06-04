@@ -87,7 +87,7 @@ Skills use `{artifact_dir}` for the resolved SDD artifact directory. Standalone 
 | File discovery | Find files and paths, such as globbing for `SKILL.md`, templates, hooks, or source files | Use shell commands such as `rg --files`, `find`, or the runtime's file search |
 | File read/write | Read templates and artifacts; create or update `.sdd/**` files | Use normal filesystem tools available to the runtime |
 | Codebase exploration | Search and read source, tests, docs, configs, and git history to understand current behavior | Use targeted shell searches and file reads; keep exploration bounded by the skill's stated read limits |
-| Delegated work | Run a writing, implementation, or review step in an isolated context | Prefer subagents when available. If unavailable, the current agent performs the step directly while preserving the same inputs, outputs, and review gate |
+| Delegated work | Run a writing, implementation, or review step in an isolated context | Use subagents or delegated workers when available. Invoking an SDD workflow skill is explicit user authorization to use delegated work for steps that declare an isolated work context. If unavailable, the current agent performs the step directly while preserving the same inputs, outputs, and review gate |
 | High-capability reasoning model | A model suitable for specification, design, roadmap, ADR, and review work | Use the strongest available reasoning model |
 | Implementation-capable model | A model suitable for coding tasks, tests, and local verification | Use the default coding model or strongest available implementation model |
 | Host configuration update | Register optional statusline, hook, or settings integrations | If no config-update capability exists, print the exact manual configuration for the user |
@@ -102,6 +102,10 @@ Host-specific names in older prompts map as follows:
 - `update-config` means host configuration update.
 
 If a preferred capability is missing, do not stop unless the skill explicitly requires a host integration. Continue with the fallback and record the limitation in the artifact or final report.
+
+### Delegation Authorization
+
+When the user invokes an SDD workflow skill (`research`, `requirements`, `extract-spec`, `roadmap`, `plan`, `tasks`, `implement`, `review`, `adr`, or `express`), treat that invocation as an explicit request to use delegated workers for the skill's isolated-work steps when the runtime supports them. Do not ask for separate delegation permission unless the delegated worker would exceed the skill's normal scope or perform a live-state mutation that already requires user confirmation.
 
 ## Usage
 

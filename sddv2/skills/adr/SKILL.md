@@ -51,7 +51,7 @@ If nothing qualifies, tell the user and skip the ADR.
 
 ### Step 2: Write the ADR
 
-Write the ADR in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly.
+Write the ADR in an isolated work context. Use delegated work if the runtime supports it; invoking this skill authorizes that delegation. If delegated work is unavailable, perform the step directly.
 
 **Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
