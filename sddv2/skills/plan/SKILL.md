@@ -8,22 +8,22 @@ description: Create and refine design documents for features using the SDD metho
 
 **Plan** turns the specification into an architectural design expressed as a set of components. It runs after requirements and before tasks.
 
-Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user.
 
-All SDD artifacts live in `.sdd/{feature}/`. The `.sdd/index.md` is owned by `requirements` and `roadmap` — do not modify it from `plan`.
+All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`. The `.sdd/index.md` is owned by `requirements` and `roadmap` — do not modify it from `plan`.
 
 ## Process
 
 ### Creating a Design
 
-Copy `templates/design.template.md` to `.sdd/{feature}/design.md` if it doesn't exist.
+Copy `templates/design.template.md` to `{artifact_dir}/design.md` if it doesn't exist.
 
-**Step 1: Write the design.** Launch a subagent. The Task Breakdown section is owned by the `tasks` skill — leave it empty.
+**Step 1: Write the design.** Use an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly.
 
-**Subagent prompt** (Task tool, `model: opus`):
+**Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
 >
-> Write the design document for {feature} at `.sdd/{feature}/design.md`.
+> Write the design document for {feature} at `{artifact_dir}/design.md`.
 >
 > Your job is to translate the specification's requirements into an architectural design, expressed as a **set of components**:
 > - **Modified** — existing components whose behavior changes to serve a requirement.
@@ -38,8 +38,8 @@ Copy `templates/design.template.md` to `.sdd/{feature}/design.md` if it doesn't 
 >
 > **Read:**
 > - Design template: `templates/design.template.md`
-> - Specification: `.sdd/{feature}/specification.md`
-> - Research: `.sdd/{feature}/research.md` (if it exists; absent for roadmap deliverables)
+> - Specification: `{artifact_dir}/specification.md`
+> - Research: `{artifact_dir}/research.md` (if it exists; absent for roadmap deliverables)
 > - Project conventions: use the `handbook` skill
 > - EARS syntax reference: use the `ears` skill (FRs are EARS sentences)
 > - Interface design rules: use the `interface-design` skill — components must be designed for testability (accept dependencies, return results, small surfaces)
@@ -59,17 +59,17 @@ Copy `templates/design.template.md` to `.sdd/{feature}/design.md` if it doesn't 
 >
 > Aim under 300 lines total. Use the template's sections as defined; omit any optional sections that don't apply.
 >
-> **Codebase exploration:** If research exists, trust its technical findings and cap Explore at 3 targeted reads. If research is absent (roadmap deliverable), Explore to discover existing patterns, integration points, and constraints; cap at 8 reads.
+> **Codebase exploration:** If research exists, trust its technical findings and cap exploration at 3 targeted file reads. If research is absent (roadmap deliverable), explore the codebase to discover existing patterns, integration points, and constraints; cap at 8 targeted file reads.
 >
 > **Escalation:** If the specification is too ambiguous to design fully, STOP and report what you completed and what needs clarification.
 
-**Step 2: Review.** Use the `review` skill to perform a **Design Review** of `.sdd/{feature}/design.md`.
+**Step 2: Review.** Use the `review` skill to perform a **Design Review** of `{artifact_dir}/design.md`.
 
-**Step 3: Fix issues (if any).** If the review finds P0 or P1 issues, launch a subagent (Task tool, `model: opus`):
+**Step 3: Fix issues (if any).** If the review finds P0 or P1 issues, fix them in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the fix directly.
 
 > Think hard.
 >
-> Fix the following issues in the design at `.sdd/{feature}/design.md`, using `.sdd/{feature}/specification.md` as reference. Research at `.sdd/{feature}/research.md` may also exist; for roadmap deliverables it has been retired and should not be sought.
+> Fix the following issues in the design at `{artifact_dir}/design.md`, using `{artifact_dir}/specification.md` as reference. Research at `{artifact_dir}/research.md` may also exist; for roadmap deliverables it has been retired and should not be sought.
 >
 > Your job is to apply the review findings below. Keep all other parts of the design as they are.
 >
@@ -81,4 +81,4 @@ Repeat Steps 2–3 until the review passes.
 
 ### Refining a Design
 
-Read the existing design and linked specification. Identify gaps, inconsistencies, or new requirements; Explore the codebase for changed context. Update the design while maintaining the template structure. Verify every requirement still maps to a component.
+Read the existing design and linked specification. Identify gaps, inconsistencies, or new requirements; explore the codebase for changed context. Update the design while maintaining the template structure. Verify every requirement still maps to a component.

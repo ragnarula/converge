@@ -1,37 +1,38 @@
 ---
 name: implement
 version: 0.2.3
-description: Implement SDD features task-by-task following the design document. Use this skill when implementing features or auto-implementing designs. One subagent per task, review at the end. Use the tasks skill for task breakdown.
+description: Implement SDD features task-by-task following the design document. Use this skill when implementing features or auto-implementing designs. One isolated work context per task, review at the end. Use the tasks skill for task breakdown.
 ---
 
 # Implement
 
 **Implement** delivers the tasks one at a time, with each task gated by its acceptance criteria. It runs after tasks and before merge.
 
-Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user and commit messages.
+Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user and commit messages.
 
-All SDD artifacts live in `.sdd/{feature}/`.
+All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
 
 ## Orchestrator discipline
 
 You are a coordinator. Keep your own context lean across all tasks:
 
-- Your only jobs are to extract context for each subagent, launch it, track progress, and relay review findings.
-- Reading source files, running tests, and invoking linters or builds is subagent work.
-- When reading SDD documents, extract only the section the current subagent needs.
-- Launch subagents one at a time, in separate messages.
+- Your primary jobs are to extract task context, run each task in an isolated work context, track progress, and relay review findings.
+- Prefer delegated work if the runtime supports it. If not, perform one task at a time directly with the same context discipline.
+- Reading source files, running tests, and invoking linters or builds belongs inside the isolated work context for the current task.
+- When reading SDD documents, extract only the section the current task needs.
+- Run task work one at a time.
 
 ## Process
 
 ### Step 1: Implement each task
 
-Read `.sdd/{feature}/tasks.md` for the ordered task list. For each task in order, prepare and launch a subagent:
+Read `{artifact_dir}/tasks.md` for the ordered task list. For each task in order, prepare an isolated work context:
 
-1. Extract the single task from `.sdd/{feature}/tasks.md` (Status, Blocked by, What to build, Acceptance criteria, Notes).
-2. Extract from `.sdd/{feature}/design.md` only the component sections this task touches.
+1. Extract the single task from `{artifact_dir}/tasks.md` (Status, Blocked by, What to build, Acceptance criteria, Notes).
+2. Extract from `{artifact_dir}/design.md` only the component sections this task touches.
 3. Paste both into the prompt below. The design already incorporates the specification, so the specification itself stays out.
 
-**Subagent prompt** (Task tool, `model: sonnet`):
+**Delegated-work prompt** (use an implementation-capable model):
 > Think hard.
 >
 > Implement task {N} for {feature}.
@@ -59,7 +60,7 @@ Read `.sdd/{feature}/tasks.md` for the ordered task list. For each task in order
 > **Other rules:**
 > - Implement exactly what this task's ACs require. Move code that no test in this task exercises to the task that needs it.
 > - One commit per task.
-> - Check off completed test checkboxes in `.sdd/{feature}/tasks.md` and update status to "Done".
+> - Check off completed test checkboxes in `{artifact_dir}/tasks.md` and update status to "Done".
 > - Add comments only where logic isn't self-evident.
 > - Keep SDD artifact identifiers (FR-XXX, NFR-XXX, AC-X, REQ-XXX) out of code and tests.
 > - Every test asserts real behavior. Replace stubs with real assertions or remove them. If an external blocker forces a stub, record it in the task's Notes section and resolve before the final task.
@@ -73,7 +74,7 @@ After all tasks are complete, use the `review` skill to perform an **Implementat
 
 ### Step 3: Fix issues (if any)
 
-If the review finds P0 or P1 issues, launch a subagent (Task tool, `model: opus`):
+If the review finds P0 or P1 issues, fix them in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the fix directly.
 
 > Think hard.
 >
@@ -83,7 +84,7 @@ If the review finds P0 or P1 issues, launch a subagent (Task tool, `model: opus`
 >
 > {paste review findings here}
 >
-> Use the `handbook` skill for project conventions. Commit each fix. Run tests and linting after each fix. Update checkboxes in `.sdd/{feature}/tasks.md` as needed.
+> Use the `handbook` skill for project conventions. Commit each fix. Run tests and linting after each fix. Update checkboxes in `{artifact_dir}/tasks.md` as needed.
 >
 > **Escalation:** If a fix requires changes beyond the scope of the review findings, STOP and report what needs broader attention.
 

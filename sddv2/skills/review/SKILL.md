@@ -8,13 +8,13 @@ version: 0.3.4
 
 **Review** gates every SDD artifact — roadmap, specification, design, task breakdown, implementation — before it leaves its skill. It's invoked from each prior skill, not standalone.
 
-Both this orchestrator and every reviewer subagent it launches follow the `language` skill for tone and vocabulary in all output, including review reports.
+Both this orchestrator and every delegated reviewer it uses follow the `language` skill for tone and vocabulary in all output, including review reports.
 
 ## Practical Guidelines
 
 ### Project Structure
 
-All SDD artifacts live in `.sdd/{feature}/` where `{feature}` is the kebab-case feature name (e.g., `user-authentication`).
+All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
 
 ### Project Guidelines
 
@@ -22,7 +22,7 @@ Use the `handbook` skill to read and resolve project conventions before reviewin
 
 ### Domain Skills
 
-After exploring the codebase with the Explore tool and understanding the task, identify which domain skills apply:
+After codebase exploration and understanding the task, identify which domain skills apply:
 
 - **distributed-systems**: Multiple services, network coordination, eventual consistency
 - **low-level-systems**: Memory management, performance-critical, OS interfaces
@@ -36,9 +36,9 @@ Load relevant skills and apply their mindset and practices throughout review.
 
 ## Process
 
-Identify the review type requested, then follow ONLY that type's section below. Each section has preparation steps and a subagent prompt template.
+Identify the review type requested, then follow ONLY that type's section below. Each section has preparation steps and an isolated-work prompt template.
 
-**CRITICAL**: Use the Task tool to create a subagent for the review. The subagent reads files directly — do NOT paste full documents into the prompt.
+**CRITICAL**: Perform each review in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the review directly. The reviewer reads files directly — do NOT paste full documents into the prompt.
 
 ### Severity Levels
 
@@ -48,8 +48,8 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Roadmap Review
 
-**Subagent prompt** (Task tool, `model: opus`):
-> Ultrathink.
+**Delegated-work prompt** (use a high-capability reasoning model):
+> Think hard.
 >
 > Review the roadmap for {INITIATIVE}.
 >
@@ -80,16 +80,16 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Specification Review
 
-**Subagent prompt** (Task tool, `model: opus`):
-> Ultrathink.
+**Delegated-work prompt** (use a high-capability reasoning model):
+> Think hard.
 >
 > Review the specification for {feature}.
 >
 > Your job is to ensure only buildable, verifiable, behavioral requirements reach the design phase. The spec is the solution definition, agnostic of implementation details.
 >
 > **Read these files:**
-> - Specification: .sdd/{feature}/specification.md
-> - Research: `.sdd/{feature}/research.md` (if it exists)
+> - Specification: `{artifact_dir}/specification.md`
+> - Research: `{artifact_dir}/research.md` (if it exists)
 > - Project conventions: use the `handbook` skill
 > - Language standard: use the `language` skill
 > - EARS syntax reference: use the `ears` skill (needed for the FR check below)
@@ -142,17 +142,17 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Design Review
 
-**Subagent prompt** (Task tool, `model: opus`):
-> Ultrathink.
+**Delegated-work prompt** (use a high-capability reasoning model):
+> Think hard.
 >
 > Review the design for {feature}.
 >
 > Your job is to ensure the design is architecturally unambiguous, sound, and feasible — so an implementer can build from it without clarifying questions.
 >
 > **Read these files:**
-> - Specification: .sdd/{feature}/specification.md
-> - Design: .sdd/{feature}/design.md
-> - Research: `.sdd/{feature}/research.md` (if it exists)
+> - Specification: `{artifact_dir}/specification.md`
+> - Design: `{artifact_dir}/design.md`
+> - Research: `{artifact_dir}/research.md` (if it exists)
 > - Project conventions: use the `handbook` skill
 > - Language standard: use the `language` skill
 > - EARS syntax reference: use the `ears` skill (FRs in the spec are EARS sentences)
@@ -200,17 +200,17 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Task Breakdown Review
 
-**Subagent prompt** (Task tool, `model: opus`):
-> Ultrathink.
+**Delegated-work prompt** (use a high-capability reasoning model):
+> Think hard.
 >
 > Review the task breakdown for {feature}.
 >
 > Your job is to ensure every task is demoable on its own, every requirement is covered, and the ordering lets each task proceed once its blockers are done.
 >
 > **Read these files:**
-> - Specification: `.sdd/{feature}/specification.md`
-> - Design: `.sdd/{feature}/design.md`
-> - Tasks: `.sdd/{feature}/tasks.md`
+> - Specification: `{artifact_dir}/specification.md`
+> - Design: `{artifact_dir}/design.md`
+> - Tasks: `{artifact_dir}/tasks.md`
 > - Project conventions: use the `handbook` skill
 > - Language standard: use the `language` skill
 >
@@ -252,29 +252,29 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ### Implementation Review
 
-**Subagent prompt** (Task tool, `model: opus`):
-> Ultrathink.
+**Delegated-work prompt** (use a high-capability reasoning model):
+> Think hard.
 >
 > Review the implementation of {feature}.
 >
 > Your job is to ensure the implementation matches the design, satisfies every spec AT, and contains no unfinished work.
 >
 > **Read these files:**
-> - Tasks: `.sdd/{feature}/tasks.md`
-> - Design: `.sdd/{feature}/design.md`
-> - Specification: `.sdd/{feature}/specification.md` (needed for FR coverage check below)
+> - Tasks: `{artifact_dir}/tasks.md`
+> - Design: `{artifact_dir}/design.md`
+> - Specification: `{artifact_dir}/specification.md` (needed for FR coverage check below)
 > - Language standard: use the `language` skill
 >
 > **Steps:**
-> 1. Read `.sdd/{feature}/specification.md` and list every FR and AT-XX. For each FR, confirm at least one task's `What to build` and ACs address it. Any FR not delivered is P0.
-> 2. Run `git diff main...HEAD` to scope the change.
+> 1. Read `{artifact_dir}/specification.md` and list every FR and AT-XX. For each FR, confirm at least one task's `What to build` and ACs address it. Any FR not delivered is P0.
+> 2. Determine the implementation diff base from the current branch's upstream, merge base, or the branch recorded when requirements created the feature. If no base is clear, ask the user. Run the equivalent of `git diff {base}...HEAD` to scope the change.
 > 3. Verify each Modified or Added component from the design appears in the diff.
 > 4. Check the final state matches the design's component contracts and interfaces. Mid-stream tasks may implement only the slice their ACs need; partial implementation in earlier tasks is fine if a later task completes it.
 > 5. For each AT-XX in the spec's Acceptance Tests, find a concrete test in the diff that exercises the AT's When and asserts its Then. A test that would still pass if the satisfying implementation were deleted is P0. Spot-check 2–3 ATs by mentally deleting the implementation.
 > 6. NFRs: for each app-instrumented NFR, confirm the named metric or log is in the diff. Platform-observed and architectural-only NFRs need no diff evidence. Don't expect tests for NFRs.
 > 7. Stubs and dead code: search for `skip`, `todo`, `pending`, `pass` in test functions, placeholder assertions, unused imports, unused functions, commented-out code. Flag each unless the task's Notes section records it as a known external blocker.
 > 8. Test code quality: tests follow the same engineering standards as production code. Flag duplicated arrange blocks, copy-pasted assertions that differ only in inputs, inline fixtures that should be shared, test names that don't state the behaviour, and ad-hoc mocks where a project fixture exists.
-> 9. IaC and live-state: provisioning configs and imperative scripts (root IaC modules, env stacks, migrations, runbooks) should be linted in the diff, not executed by the implement subagent. If an AT passed against an applied environment, confirm via tasks.md or commit messages that the user applied it. Reusable IaC modules carry acceptance tests via plan-time or policy assertions.
+> 9. IaC and live-state: provisioning configs and imperative scripts (root IaC modules, env stacks, migrations, runbooks) should be linted in the diff, not executed by the implement worker. If an AT passed against an applied environment, confirm via tasks.md or commit messages that the user applied it. Reusable IaC modules carry acceptance tests via plan-time or policy assertions.
 > 10. SDD leakage: search for `FR-`, `NFR-`, `AT-`, `REQ-` in code, comments, docstrings, or test names.
 > 11. Verify project conventions via the `handbook` skill: error handling, logging, naming, test structure, commit format.
 > 12. Run tests, linters, and build.

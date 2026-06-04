@@ -8,7 +8,7 @@ version: 0.1.1
 
 Write an Architecture Decision Record (ADR) capturing key technical decisions made during a feature's research and design. Run this after implementation, before merge.
 
-Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output.
+Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output.
 
 ## When to Write an ADR
 
@@ -40,7 +40,7 @@ If the project maintains a numbered ADR index (e.g., `docs/adr/`), follow that c
 
 ### Step 1: Identify decisions worth recording
 
-Read the design at `.sdd/{feature}/design.md`. Read research at `.sdd/{feature}/research.md` if it exists — for roadmap deliverables it has been retired by the roadmap step, so fall back to `.sdd/{initiative}/roadmap.md` for context. Look for:
+Read the design at `{artifact_dir}/design.md`. Read research at `{artifact_dir}/research.md` if it exists — for roadmap deliverables it has been retired by the roadmap step, so fall back to `.sdd/{initiative}/roadmap.md` for context. Look for:
 
 - Places where alternatives were considered and one was chosen over others
 - Technology or infrastructure choices with tradeoffs
@@ -51,16 +51,16 @@ If nothing qualifies, tell the user and skip the ADR.
 
 ### Step 2: Write the ADR
 
-Use the Task tool to launch a subagent.
+Write the ADR in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly.
 
-**Subagent prompt** (Task tool, `model: opus`):
+**Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
 >
-> Write an ADR for {feature} at `.sdd/{feature}/adr.md`.
+> Write an ADR for {feature} at `{artifact_dir}/adr.md`.
 >
 > **Read these files:**
-> - Design: `.sdd/{feature}/design.md`
-> - Research: `.sdd/{feature}/research.md` if it exists; otherwise `.sdd/{initiative}/roadmap.md` (for roadmap deliverables)
+> - Design: `{artifact_dir}/design.md`
+> - Research: `{artifact_dir}/research.md` if it exists; otherwise `.sdd/{initiative}/roadmap.md` (for roadmap deliverables)
 > - ADR template: templates/adr.template.md
 >
 > **Follow the template structure.** For each section:

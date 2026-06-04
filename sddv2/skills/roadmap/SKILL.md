@@ -12,7 +12,7 @@ multi-spec. The roadmap turns a large initiative into a sequence of
 **vertical deliverables** — each one a user/operator outcome that ships
 end-to-end on its own and fits one spec.
 
-Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user.
 
 ## When to invoke
 
@@ -62,7 +62,7 @@ You **MUST** understand project guidelines via the `handbook` skill.
 **Step 1: Build the Roadmap Brief**
 
 Read `.sdd/{initiative}/research.md`. Distil into a compact brief the
-writer subagent can work from without opening the research file. Keep
+writer can work from without opening the research file. Keep
 under ~60 lines and **strip technical/implementation content** — the
 brief feeds an outcomes-only roadmap.
 
@@ -93,10 +93,9 @@ phase, which will rediscover it.
 
 **Step 2: Write the roadmap**
 
-You MUST use the Task tool to launch a subagent that writes the roadmap.
-Do NOT write it yourself.
+Write the roadmap in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly while preserving the same inputs, output path, and review gate.
 
-**Subagent prompt** (Task tool, `model: opus`):
+**Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Write the roadmap for {INITIATIVE} at `.sdd/{initiative}/roadmap.md`.
@@ -150,7 +149,7 @@ Do NOT write it yourself.
 >   tighten.
 > - Save the document. Never skip this.
 >
-> **Codebase exploration:** Trust the brief. Do NOT Explore unless the
+> **Codebase exploration:** Trust the brief. Do NOT explore unless the
 > brief is silent on a constraint that affects deliverable shaping —
 > and even then, cap at 3 targeted reads.
 >
@@ -165,10 +164,11 @@ at `.sdd/{initiative}/roadmap.md`.
 
 **Step 4: Fix issues (if any)**
 
-If the review finds P0 or P1 issues, use the Task tool to launch a
-subagent to fix them. Do NOT fix them yourself.
+If the review finds P0 or P1 issues, fix them in an isolated work
+context. Prefer delegated work if the runtime supports it; otherwise
+perform the fix directly.
 
-**Subagent prompt** (Task tool, `model: opus`):
+**Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
 >
 > Fix the following issues in the roadmap at
@@ -181,7 +181,7 @@ subagent to fix them. Do NOT fix them yourself.
 >
 > Save the document when done.
 
-After the fix subagent completes, re-run Step 3 (review). Repeat Steps
+After the fix completes, re-run Step 3 (review). Repeat Steps
 3–4 until the review passes.
 
 **Step 5: Maintain the index**
@@ -203,7 +203,7 @@ Confirm with the user before deleting if they have not previously
 expressed standing approval for this workflow step.
 
 Downstream consequence: the design phase will rediscover technical
-context (existing patterns, integration points, prior art) via Explore
+context (existing patterns, integration points, prior art) via codebase exploration
 when each deliverable's design is written. This is intentional — the
 roadmap contract is outcomes-only.
 

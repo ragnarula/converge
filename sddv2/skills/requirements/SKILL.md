@@ -8,13 +8,13 @@ version: 0.3.3
 
 **Requirements** turns an idea into a behavioral specification. It runs after research (if any) and before plan.
 
-Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user.
 
 ## Practical Guidelines
 
 ### Project Structure
 
-All SDD artifacts live in `.sdd/{feature}/` where `{feature}` is the kebab-case feature name (e.g., `user-authentication`).
+All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
 
 ### Templates
 
@@ -27,7 +27,7 @@ Use the `handbook` skill to read and resolve project conventions. These conventi
 
 ### Domain Skills
 
-After exploring the codebase with the Explore tool and understanding the task, identify which domain skills apply:
+After codebase exploration and understanding the task, identify which domain skills apply:
 
 - **distributed-systems**: Multiple services, network coordination, eventual consistency
 - **low-level-systems**: Memory management, performance-critical, OS interfaces
@@ -41,7 +41,7 @@ Load relevant skills and apply their mindset and practices throughout specificat
 
 ## Process
 
-You **MUST** explore the codebase using the Explore tool before doing **ANY** of the below.
+You **MUST** explore the codebase before doing **ANY** of the below. Use the current runtime's code search and file-read capabilities.
 You **MUST** understand project guidelines by using the `handbook` skill
 
 ### Creating a Specification
@@ -50,7 +50,7 @@ Do this when a user asks to create a specification.
 
 **Roadmap check:** If the parent directory contains a `roadmap.md`, the spec is a roadmap deliverable. Confirm which D-XX with the user, read its Outcome and In/Out scope from the roadmap, and add a `**Linked Roadmap:** .sdd/{initiative}/roadmap.md (D-XX)` field to the spec. Update the deliverable's Spec status as it moves Drafting → Approved → Implemented.
 
-1. **Create a feature branch** from main named `feature/<feature-name>` (e.g., `feature/user-authentication`). For roadmap deliverables, name the branch `feature/<initiative>-<deliverable-slug>`.
+1. **Create a feature branch** from the repository's default or agreed base branch, named `feature/<feature-name>` (e.g., `feature/user-authentication`). For roadmap deliverables, name the branch `feature/<initiative>-<deliverable-slug>`. Record the chosen base branch in the work notes or status output so implementation review can diff against it later.
 2. **Create the spec folder.** Standalone: `.sdd/{feature}/`. Roadmap deliverable: `.sdd/{initiative}/{deliverable-slug}/`.
 3. **Copy** `templates/specification.template.md` to the new folder's `specification.md` if it doesn't already exist.
 4. **Maintain the index:**
@@ -96,18 +96,18 @@ NFRs are optional — only include them when there are genuine, measurable quali
 
 **Step 3: Write the Specification**
 
-Once you have enough information to fill out every section unambiguously, use the Task tool to launch a subagent that writes the specification. Do NOT write it yourself.
+Once you have enough information to fill out every section unambiguously, write the specification in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly while preserving the same inputs, output path, and review gate.
 
-**Subagent prompt** (Task tool, `model: opus`):
+**Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
 >
-> Write the specification for {feature} at .sdd/{feature}/specification.md.
+> Write the specification for {feature} at `{artifact_dir}/specification.md`.
 >
 > Your job is to define the solution as a behavioral specification — what the system does for users, operators, auditors, and reviewers. The specification is agnostic of implementation details: internal types, APIs, data structures, libraries, frameworks, and architectural patterns belong to the design phase.
 >
 > **Read:**
 > - Specification template: templates/specification.template.md
-> - Research findings: `.sdd/{feature}/research.md` (if it exists)
+> - Research findings: `{artifact_dir}/research.md` (if it exists)
 > - EARS syntax reference: use the `ears` skill
 > - Language standard: use the `language` skill
 >
@@ -135,16 +135,16 @@ Once you have enough information to fill out every section unambiguously, use th
 
 **Step 4: Review the Specification**
 
-Use the `review` skill to perform a **Specification Review** of the specification at .sdd/{feature}/specification.md.
+Use the `review` skill to perform a **Specification Review** of the specification at `{artifact_dir}/specification.md`.
 
 **Step 5: Fix issues (if any)**
 
-If the review finds P0 or P1 issues, use the Task tool to launch a subagent to fix them. Do NOT fix them yourself.
+If the review finds P0 or P1 issues, fix them in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the fix directly while preserving the same scope.
 
-**Subagent prompt** (Task tool, `model: opus`):
+**Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
 >
-> Fix the following issues in the specification at .sdd/{feature}/specification.md, using the template at templates/specification.template.md as reference.
+> Fix the following issues in the specification at `{artifact_dir}/specification.md`, using the template at templates/specification.template.md as reference.
 >
 > Your job is to apply the review findings below. Keep all other parts of the specification as they are.
 >
@@ -152,14 +152,14 @@ If the review finds P0 or P1 issues, use the Task tool to launch a subagent to f
 >
 > Save the document when done.
 
-After the fix subagent completes, re-run Step 4 (review). Repeat Steps 4-5 until the review passes.
+After the fix completes, re-run Step 4 (review). Repeat Steps 4-5 until the review passes.
 
 ### Refining a Specification
 
 When asked to refine a specification:
 1. Read existing specification thoroughly
 2. Identify gaps, inconsistencies, or new requirements
-3. Use the Explore tool to search the codebase for changed context or new patterns
+3. Explore the codebase for changed context or new patterns using the current runtime's code search and file-read capabilities
 4. Ask stakeholder about changed priorities or constraints
 5. Update the specification while maintaining template structure
 6. Verify all requirements are still testable and measurable

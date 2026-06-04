@@ -6,68 +6,26 @@ version: 0.1.0
 
 # Setup
 
-Set up SDD for the current project. This skill does two things:
+Set up SDD for the current project. This skill has one required core step and one optional host-integration step:
 
-1. **Registers context monitoring hooks** — statusline + agent-facing warnings when context runs low
-2. **Creates project guidelines** — discovers conventions and writes `.sdd/handbook.md`
+1. **Creates project guidelines** — discovers conventions and writes `.sdd/handbook.md`
+2. **Optionally registers context monitoring hooks** — statusline + agent-facing warnings when the host runtime supports them
 
 Run this once when starting to use SDD in a new project.
 
 ## Process
 
-### Step 1: Register Context Monitoring Hooks
-
-The SDD plugin includes two hooks that prevent context exhaustion:
-- **sdd-statusline.js** — shows context usage in the status bar and writes metrics to a bridge file
-- **sdd-context-monitor.js** — reads the bridge file after tool uses and warns the agent when context is running low
-
-**1a. Find the hooks**
-
-Use Glob to find `**/sddv2/hooks/sdd-statusline.js`. Resolve the absolute path to the `hooks/` directory. Both `sdd-statusline.js` and `sdd-context-monitor.js` are in that directory.
-
-If the hooks cannot be found, tell the user the sddv2 plugin hooks directory could not be located and skip to Step 2.
-
-**1b. Register the hooks**
-
-Use the `update-config` skill to add the following to the user's settings:
-
-1. **statusLine** setting:
-   ```json
-   {
-     "type": "command",
-     "command": "node {HOOKS_DIR}/sdd-statusline.js"
-   }
-   ```
-
-2. **PostToolUse hook** (add to hooks array, don't replace existing hooks):
-   ```json
-   {
-     "matcher": "Bash|Edit|Write|Agent|Task",
-     "hooks": [
-       {
-         "type": "command",
-         "command": "node {HOOKS_DIR}/sdd-context-monitor.js",
-         "timeout": 10000
-       }
-     ]
-   }
-   ```
-
-Where `{HOOKS_DIR}` is the absolute path found in step 1a.
-
-**Important:** If the user already has a statusLine or PostToolUse hooks configured, ask before overwriting. Append the context monitor alongside existing PostToolUse hooks rather than replacing them.
-
-### Step 2: Create Project Guidelines
+### Step 1: Create Project Guidelines
 
 Create `.sdd/handbook.md` with discovered project conventions. This file is read by every SDD skill so agents follow consistent patterns.
 
-**2a. Check for existing guidelines**
+**1a. Check for existing guidelines**
 
 If `.sdd/handbook.md` already exists, read it and ask the user if they want to update it or skip this step.
 
-**2b. Discover conventions**
+**1b. Discover conventions**
 
-Use the Explore tool to search the codebase and discover conventions for:
+Explore the codebase using the current runtime's code search and file-read capabilities. Discover conventions for:
 
 - **Error handling** — error types, propagation patterns, error content, custom error classes
 - **Logging** — framework, log levels, structured logging patterns
@@ -86,7 +44,7 @@ Look at:
 - README and CONTRIBUTING files
 - Pre-commit hook configurations (.husky/, .pre-commit-config.yaml, etc.)
 
-**2c. Write the guidelines file**
+**1c. Write the guidelines file**
 
 Create `.sdd/handbook.md` with the discovered conventions. Structure it as:
 
@@ -117,6 +75,50 @@ Create `.sdd/handbook.md` with the discovered conventions. Structure it as:
 
 Only include sections where conventions were actually discovered. Don't add placeholder sections with questions — if a convention wasn't found, omit the section.
 
-**2d. Present to user**
+**1d. Present to user**
 
 Show the user a summary of what was discovered and written. Ask if anything needs correction or addition.
+
+### Step 2: Optional Context Monitoring Hooks
+
+The SDD plugin includes two hooks that prevent context exhaustion:
+- **sdd-statusline.js** — shows context usage in the status bar and writes metrics to a bridge file
+- **sdd-context-monitor.js** — reads the bridge file after tool uses and warns the agent when context is running low
+
+This step applies only to host runtimes that support statusline commands and post-tool hooks. If the runtime does not support hooks, report that hook registration was skipped and stop after Step 1.
+
+**2a. Find the hooks**
+
+Use the runtime's file discovery capability to find `**/sddv2/hooks/sdd-statusline.js`. Resolve the absolute path to the `hooks/` directory. Both `sdd-statusline.js` and `sdd-context-monitor.js` are in that directory.
+
+If the hooks cannot be found, tell the user the sddv2 plugin hooks directory could not be located and skip hook registration.
+
+**2b. Register the hooks**
+
+Use the host's configuration update capability to add the following to the user's settings. If no configuration update capability exists, print the exact configuration below as manual instructions for the user:
+
+1. **statusLine** setting:
+   ```json
+   {
+     "type": "command",
+     "command": "node {HOOKS_DIR}/sdd-statusline.js"
+   }
+   ```
+
+2. **PostToolUse hook** (add to hooks array, don't replace existing hooks):
+   ```json
+   {
+     "matcher": "Bash|Edit|Write|Agent|Task",
+     "hooks": [
+       {
+         "type": "command",
+         "command": "node {HOOKS_DIR}/sdd-context-monitor.js",
+         "timeout": 10000
+       }
+     ]
+   }
+   ```
+
+Where `{HOOKS_DIR}` is the absolute path found in step 1a.
+
+**Important:** If the user already has a statusLine or PostToolUse hooks configured, ask before overwriting. Append the context monitor alongside existing PostToolUse hooks rather than replacing them.

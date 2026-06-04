@@ -10,9 +10,9 @@ version: 0.1.0
 
 It runs before `plan`, as a sibling to `requirements`, when the work preserves existing behavior.
 
-Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user.
 
-All SDD artifacts live in `.sdd/{feature}/`.
+All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
 
 ## What this skill does and does not guarantee
 
@@ -31,7 +31,7 @@ Greenfield features use `requirements`. Feature work that includes a refactor us
 
 ### Step 1: Identify the area
 
-Ask the user which code area is being refactored or migrated. Get the paths or module names. Explore with them to identify the boundary when the area is unclear.
+Ask the user which code area is being refactored or migrated. Get the paths or module names. Explore with them, using available code search and file-read capabilities, to identify the boundary when the area is unclear.
 
 ### Step 2: Read the area
 
@@ -72,10 +72,12 @@ Ask the user why the refactor or migration is happening. The motivation goes in 
 
 ### Step 5: Write the specification
 
-**Subagent prompt** (Task tool, `model: opus`):
+Write the specification in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly while preserving the same inputs, output path, and review gate.
+
+**Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
 >
-> Write the specification for {feature} at `.sdd/{feature}/specification.md`.
+> Write the specification for {feature} at `{artifact_dir}/specification.md`.
 >
 > Your job is to define the preserved behavior of the area being refactored, as a behavioral specification — what the system does today for users, operators, auditors, and reviewers, expressed independently of the current implementation. The specification is agnostic of implementation details: internal types, APIs, data structures, libraries, frameworks, and architectural patterns belong to the design phase.
 >
@@ -104,15 +106,15 @@ Ask the user why the refactor or migration is happening. The motivation goes in 
 
 ### Step 6: Review
 
-Use the `review` skill for a Specification Review of `.sdd/{feature}/specification.md`.
+Use the `review` skill for a Specification Review of `{artifact_dir}/specification.md`.
 
 ### Step 7: Fix issues (if any)
 
-If the review finds P0 or P1 issues, launch a subagent (Task tool, `model: opus`):
+If the review finds P0 or P1 issues, fix them in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the fix directly.
 
 > Think hard.
 >
-> Fix the following issues in the specification at `.sdd/{feature}/specification.md`. Keep all other parts of the specification as they are.
+> Fix the following issues in the specification at `{artifact_dir}/specification.md`. Keep all other parts of the specification as they are.
 >
 > {paste review findings here}
 >

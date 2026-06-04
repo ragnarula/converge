@@ -36,7 +36,7 @@ If the file does not exist, skip to "When the Guide Does Not Exist" below.
 
 ### Step 2: Read the Guidelines File
 
-If the file exists, read it thoroughly using the Read tool.
+If the file exists, read it thoroughly using the runtime's file-read capability.
 
 ### Step 3: Read All Referenced Documentation
 
@@ -48,7 +48,7 @@ Extract every convention mentioned in the guide and referenced documentation. Fo
 
 ## When the Guide Does Not Exist
 
-If `.sdd/handbook.md` does not exist, use the Explore tool to search the codebase and discover conventions for at minimum:
+If `.sdd/handbook.md` does not exist, explore the codebase using the runtime's code search and file-read capabilities. Discover conventions for at minimum:
 
 - **Error handling** — error types, propagation patterns, error content
 - **Logging** — framework, log levels, structured logging

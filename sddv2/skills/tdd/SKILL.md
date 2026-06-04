@@ -36,7 +36,7 @@ Once green: remove duplication, deepen modules where complexity warrants it, cla
 
 Beyond AC tests, you decide how much additional testing each touched component warrants. The dependency-count heuristic is the signal.
 
-Read the design at `.sdd/{feature}/design.md` for the components this task touches and their dependant counts:
+Read the design at `{artifact_dir}/design.md` for the components this task touches and their dependant counts:
 
 - Modified components: `Dependants:` field.
 - Added components: `Consumers:` field.

@@ -8,27 +8,27 @@ description: Break a design into demoable tracer-bullet tasks. Use this skill wh
 
 **Tasks** breaks the design into demoable tracer-bullet tasks. It runs after plan and before implement.
 
-Both this orchestrator and every subagent it launches follow the `language` skill for tone and vocabulary in all output, including replies to the user.
+Both this orchestrator and every delegated worker it uses follow the `language` skill for tone and vocabulary in all output, including replies to the user.
 
-All SDD artifacts live in `.sdd/{feature}/`.
+All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
 
 ## Process
 
 ### Task Breakdown
 
-Launch a subagent to write the task breakdown.
+Write the task breakdown in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the step directly.
 
-**Subagent prompt** (Task tool, `model: opus`):
+**Delegated-work prompt** (use a high-capability reasoning model):
 > Think hard.
 >
-> Create the task breakdown for {feature} at `.sdd/{feature}/tasks.md`.
+> Create the task breakdown for {feature} at `{artifact_dir}/tasks.md`.
 >
 > Your job is to break the design into **tracer-bullet tasks**. Each task is a thin vertical slice that delivers concrete value on its own — demoable or verifiable in isolation, not a horizontal slice of one layer. Prefer many thin slices over few thick ones.
 >
 > **Read:**
 > - Task template: `templates/tasks.template.md`
-> - Design: `.sdd/{feature}/design.md`
-> - Specification: `.sdd/{feature}/specification.md`
+> - Design: `{artifact_dir}/design.md`
+> - Specification: `{artifact_dir}/specification.md`
 > - Project conventions: use the `handbook` skill
 > - Language standard: use the `language` skill
 >
@@ -56,15 +56,15 @@ Launch a subagent to write the task breakdown.
 
 ### Review
 
-Use the `review` skill for a **Task Breakdown Review** of `.sdd/{feature}/tasks.md`.
+Use the `review` skill for a **Task Breakdown Review** of `{artifact_dir}/tasks.md`.
 
 ### Fix issues (if any)
 
-If the review finds P0 or P1 issues, launch a subagent (Task tool, `model: opus`):
+If the review finds P0 or P1 issues, fix them in an isolated work context. Prefer delegated work if the runtime supports it; otherwise perform the fix directly.
 
 > Think hard.
 >
-> Fix the following issues in the task breakdown at `.sdd/{feature}/tasks.md`, using `.sdd/{feature}/design.md` and `.sdd/{feature}/specification.md` as reference.
+> Fix the following issues in the task breakdown at `{artifact_dir}/tasks.md`, using `{artifact_dir}/design.md` and `{artifact_dir}/specification.md` as reference.
 >
 > Your job is to apply the review findings below. Keep all other parts of the task breakdown as they are.
 >

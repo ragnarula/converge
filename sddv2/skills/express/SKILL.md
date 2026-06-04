@@ -16,18 +16,18 @@ Either:
 
 If neither exists, tell the user to run the `research` skill first and stop.
 
-**Roadmap check:** If a roadmap covers this work, refuse to run on the whole initiative. Ask the user which deliverable (D-XX) to express, then run express scoped to that single deliverable's spec folder. Express handles one feature at a time, never a sequence.
+**Roadmap check:** If a roadmap covers this work, refuse to run on the whole initiative. Ask the user which deliverable (D-XX) to express, then run express scoped to that single deliverable's artifact directory. Express handles one feature at a time, never a sequence.
 
 ## Orchestrator Discipline
 
 You are a coordinator across the full workflow. Keep your context lean:
 - Do NOT read source code, test files, or SDD documents yourself except when a skill step explicitly requires it
-- Each skill you invoke manages its own subagents — trust the delegation
+- Each skill you invoke manages its own isolated work contexts. Prefer delegated work where available; otherwise let the skill run directly with the same context discipline
 - Your only jobs: invoke skills in sequence, relay user input when needed, report results
 
 ## Process
 
-**CRITICAL**: Execute ONE step at a time. NEVER launch multiple Task tool calls in a single message. Wait for each step to complete before starting the next.
+**CRITICAL**: Execute ONE step at a time. Never run multiple delegated-work steps in a single message. Wait for each step to complete before starting the next.
 
 **CRITICAL**: Do NOT stop between steps unless user input is genuinely required (e.g., the `requirements` skill needs a discovery interview answer, or a review finds P0 issues that need user decision). If a step completes successfully, move immediately to the next step.
 
