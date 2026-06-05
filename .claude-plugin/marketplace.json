@@ -1,15 +1,15 @@
 {
-  "name": "lanyard-claude-code-plugins",
+  "name": "lanyard-sddv3",
   "owner": {
-    "name": "lanyard-claude-code-plugins contributors"
+    "name": "lanyard-sddv3 contributors"
   },
-  "description": "Spec Driven Development plugin for Claude Code",
+  "description": "Spec Driven Development, critical-thinking edition — a fork of sddv2 focused on sharpening reasoning at every workflow step.",
 
   "plugins": [
     {
-      "name": "sddv2",
-      "source": "./sddv2",
-      "description": "Spec Driven Development v2 - structured workflow for research, specification, design, task breakdown, implementation, and review with context management, test quality enforcement, and ADR generation."
+      "name": "sddv3",
+      "source": "./sddv3",
+      "description": "Spec Driven Development v3 - structured workflow for research, specification, design, task breakdown, implementation, and review, with first-class critical-thinking skills layered across every step."
     }
   ]
 }
