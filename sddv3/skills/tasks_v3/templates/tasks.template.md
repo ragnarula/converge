@@ -1,7 +1,7 @@
 # Tasks: {Feature Name}
 
-**Linked Design:** `.sdd/{feature}/design.md`
-**Linked Specification:** `.sdd/{feature}/specification.md`
+**Linked Design:** SCS concept `{concept_name}`, `design` artifact
+**Linked Specification:** SCS concept `{concept_name}`, `specification` artifact
 
 ### Task {N}: {Short title}
 

@@ -2,7 +2,7 @@
 
 **Status:** Proposed | Accepted | Superseded by ADR-NNN | Deprecated
 **Date:** YYYY-MM-DD
-**Feature:** `.sdd/{feature}/`
+**Feature:** SCS concept `{concept_name}`
 
 ## Context
 

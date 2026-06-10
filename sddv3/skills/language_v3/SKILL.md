@@ -1,6 +1,6 @@
 ---
 name: language_v3
-description: Language standard for SDD — active voice, simple English, no metaphors or slang. Use this when writing SDD documents or replying to the user. Loaded by every workflow skill.
+description: Language standard for SDD — active voice, simple English, no metaphors or slang. Use this when writing SDD documents or replying to the user.
 version: 0.1.0
 ---
 

@@ -10,7 +10,7 @@ description: Implement SDD features task-by-task following the design document. 
 
 Both this orchestrator and every subagent it spawns follow the `language_v3` skill for tone and vocabulary in all output, including replies to the user and commit messages.
 
-All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
+SDD artifacts are stored in SCS via the `scs` MCP server, not local files. Use the `artifacts_v3` skill for the storage contract. Implement reads the `tasks` and `design` artifacts on the concept named `{feature}` (standalone) or `{initiative}/{deliverable-slug}` (roadmap deliverable), and saves new revisions of the `tasks` artifact as task status changes.
 
 ## Orchestrator discipline
 
@@ -26,10 +26,10 @@ You are a coordinator. Keep your own context lean across all tasks:
 
 ### Step 1: Implement each task
 
-Read `{artifact_dir}/tasks.md` for the ordered task list. For each task in order, prepare and spawn a subagent:
+Read the `tasks` artifact on the concept (via `get_artifact`) for the ordered task list. For each task in order, prepare and spawn a subagent:
 
-1. Extract the single task from `{artifact_dir}/tasks.md` (Status, Blocked by, What to build, Acceptance criteria, Notes).
-2. Extract from `{artifact_dir}/design.md` only the component sections this task touches.
+1. Extract the single task from the `tasks` artifact (Status, Blocked by, What to build, Acceptance criteria, Notes).
+2. Extract from the `design` artifact only the component sections this task touches.
 3. Paste both into the prompt below. The design already incorporates the specification, so the specification itself stays out.
 
 **Subagent prompt** (use an implementation-capable model):
@@ -45,7 +45,7 @@ Read `{artifact_dir}/tasks.md` for the ordered task list. For each task in order
 > **Relevant design context:**
 > {paste relevant design sections here}
 >
-> **Project guidelines:** Use the `handbook_v3` skill.
+> **Project guidelines:** Look for existing project docs (README, CONTRIBUTING, docs/, ADRs) to resolve conventions.
 >
 > **Language standard:** Use the `language_v3` skill for tone and vocabulary in all output, including commit messages.
 >
@@ -60,7 +60,7 @@ Read `{artifact_dir}/tasks.md` for the ordered task list. For each task in order
 > **Other rules:**
 > - Implement exactly what this task's ACs require. Move code that no test in this task exercises to the task that needs it.
 > - One commit per task.
-> - Check off completed test checkboxes in `{artifact_dir}/tasks.md` and update status to "Done".
+> - When the task is complete, update the `tasks` artifact on the concept `{concept_name}`: read its current revision via the `scs` MCP server (use the `artifacts_v3` skill), check off this task's completed test checkboxes, set its status to "Done", and save a new revision with the current revision's id as `base_revision_id`. On `error_code: "conflict"`, re-read, re-apply, and save again.
 > - Add comments only where logic isn't self-evident.
 > - Keep SDD artifact identifiers (FR-XXX, NFR-XXX, AC-X, REQ-XXX) out of code and tests.
 > - Every test asserts real behavior. Replace stubs with real assertions or remove them. If an external blocker forces a stub, record it in the task's Notes section and resolve before the final task.
@@ -84,7 +84,7 @@ If the review finds P0 or P1 issues, spawn a subagent to fix them.
 >
 > {paste review findings here}
 >
-> Use the `handbook_v3` skill for project conventions. Commit each fix. Run tests and linting after each fix. Update checkboxes in `{artifact_dir}/tasks.md` as needed.
+> Look for existing project docs (README, CONTRIBUTING, docs/, ADRs) for project conventions. Commit each fix. Run tests and linting after each fix. Update checkboxes in the `tasks` artifact on `{concept_name}` as needed (read current revision, edit, save with `base_revision_id`; use the `artifacts_v3` skill).
 >
 > **Escalation:** If a fix requires changes beyond the scope of the review findings, STOP and report what needs broader attention.
 

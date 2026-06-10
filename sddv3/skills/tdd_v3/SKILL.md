@@ -1,6 +1,6 @@
 ---
 name: tdd_v3
-description: Test-driven development for SDD — red-green-refactor with the dependency-count heuristic for test depth. Use this when implementing a task. Loaded by the implement_v3 skill.
+description: Test-driven development for SDD — red-green-refactor with the dependency-count heuristic for test depth. Use this when implementing a task.
 version: 0.1.0
 ---
 
@@ -36,7 +36,7 @@ Once green: remove duplication, deepen modules where complexity warrants it, cla
 
 Beyond AC tests, you decide how much additional testing each touched component warrants. The dependency-count heuristic is the signal.
 
-Read the design at `{artifact_dir}/design.md` for the components this task touches and their dependant counts:
+Read the design (the `design` artifact on the concept in SCS, or the design context the implement orchestrator pasted into the task prompt) for the components this task touches and their dependant counts:
 
 - Modified components: `Dependants:` field.
 - Added components: `Consumers:` field.
@@ -44,12 +44,12 @@ Read the design at `{artifact_dir}/design.md` for the components this task touch
 
 More dependants → invest more in tests. A component used widely has a bigger blast radius if it breaks. A leaf with few or no dependants is usually covered by the AC tests that exercise it transitively.
 
-This is a heuristic, not a threshold. Weigh the cost of a bug against the cost of writing and maintaining the test. The handbook covers where tests live and how to write them, not how many — that call is yours.
+This is a heuristic, not a threshold. Weigh the cost of a bug against the cost of writing and maintaining the test. Project docs and the existing suite show where tests live and how to write them, not how many — that call is yours.
 
 ## Where and how to write tests
 
-1. Read the handbook (use the `handbook_v3` skill). It covers test file locations, fixtures, assertion style, framework, runner, and naming.
-2. Explore the existing test suite for what the handbook leaves implicit — fixtures and helpers for the dependencies you're touching, arrangement patterns, parameterisation conventions.
+1. Look for existing project docs (README, CONTRIBUTING, docs/) covering test file locations, fixtures, assertion style, framework, runner, and naming.
+2. Explore the existing test suite for what the docs leave implicit — fixtures and helpers for the dependencies you're touching, arrangement patterns, parameterisation conventions.
 
 Reuse what exists. Use real code paths; mock only at system boundaries (see the `mocking_v3` skill).
 

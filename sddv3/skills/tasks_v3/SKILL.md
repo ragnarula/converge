@@ -10,26 +10,27 @@ description: Break a design into demoable tracer-bullet tasks. Use this skill wh
 
 Both this orchestrator and every subagent it spawns follow the `language_v3` skill for tone and vocabulary in all output, including replies to the user.
 
-All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
+SDD artifacts are stored in SCS via the `scs` MCP server, not local files. Use the `artifacts_v3` skill for the storage contract. Tasks writes the `tasks` artifact on the concept named `{feature}` (standalone) or `{initiative}/{deliverable-slug}` (roadmap deliverable).
 
 ## Process
 
 ### Task Breakdown
 
-Spawn a subagent to write the task breakdown.
+Spawn a subagent to write the task breakdown. Invoking this skill authorizes that subagent to use the `scs` tools.
 
 **Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
-> Create the task breakdown for {feature} at `{artifact_dir}/tasks.md`.
+> Create the task breakdown for {feature} and save it as the `tasks` artifact on the concept `{concept_name}` via the `scs` MCP server.
 >
 > Your job is to break the design into **tracer-bullet tasks**. Each task is a thin vertical slice that delivers concrete value on its own — demoable or verifiable in isolation, not a horizontal slice of one layer. Prefer many thin slices over few thick ones.
 >
 > **Read:**
 > - Task template: `templates/tasks.template.md`
-> - Design: `{artifact_dir}/design.md`
-> - Specification: `{artifact_dir}/specification.md`
-> - Project conventions: use the `handbook_v3` skill
+> - Storage contract: use the `artifacts_v3` skill (how to read/write artifacts via `scs`)
+> - Design: the `design` artifact on `{concept_name}`
+> - Specification: the `specification` artifact on `{concept_name}`
+> - Project conventions: look for existing project docs (README, CONTRIBUTING, docs/, ADRs)
 > - Language standard: use the `language_v3` skill
 >
 > **For each task, write:**
@@ -38,7 +39,7 @@ Spawn a subagent to write the task breakdown.
 > - **Blocked by** — explicit references to prior tasks this task depends on, or "None".
 > - **Notes** — 3–5 sentences of key decisions, edge cases, or fixture pointers.
 >
-> The task captures intent and acceptance contract only. The implementation agent does the rest at run time: read the design to identify touched components, write one test per AC, then use the dependency-count heuristic to judge additional coverage. The handbook covers where tests live and how to write them; depth is the implementer's call.
+> The task captures intent and acceptance contract only. The implementation agent does the rest at run time: read the design to identify touched components, write one test per AC, then use the dependency-count heuristic to judge additional coverage. Existing project docs and the test suite show where tests live and how to write them; depth is the implementer's call.
 >
 > **Breakdown rules:**
 > - Every task is demoable or verifiable on its own. If you can state what an outside observer would see after the task, the slice is vertical. Reshape slices that fail this test.
@@ -52,11 +53,11 @@ Spawn a subagent to write the task breakdown.
 >
 > **Escalation:** If the design is too large or ambiguous to break down fully, STOP and report what you completed and what needs clarification.
 >
-> Save the document when done.
+> Save the breakdown as the `tasks` artifact on `{concept_name}` via `save_artifact_revision` when done (omit `base_revision_id` for the first revision).
 
 ### Review
 
-Use the `review_v3` skill for a **Task Breakdown Review** of `{artifact_dir}/tasks.md`.
+Use the `review_v3` skill for a **Task Breakdown Review** of the `tasks` artifact on the concept.
 
 ### Fix issues (if any)
 
@@ -64,12 +65,12 @@ If the review finds P0 or P1 issues, spawn a subagent to fix them.
 
 > Think hard.
 >
-> Fix the following issues in the task breakdown at `{artifact_dir}/tasks.md`, using `{artifact_dir}/design.md` and `{artifact_dir}/specification.md` as reference.
+> Fix the following issues in the `tasks` artifact on the concept `{concept_name}` (read it via the `scs` MCP server; use the `artifacts_v3` skill for read/write mechanics), using the `design` and `specification` artifacts on `{concept_name}` as reference.
 >
 > Your job is to apply the review findings below. Keep all other parts of the task breakdown as they are.
 >
 > {paste review findings here}
 >
-> Save the document when done.
+> Save the updated breakdown as a new revision (pass the current revision's id as `base_revision_id`) when done.
 
 Repeat until the review passes.

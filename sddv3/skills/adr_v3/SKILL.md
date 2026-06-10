@@ -30,17 +30,17 @@ Do NOT write an ADR for:
 
 ### Project Structure and Paths
 
-ADRs live alongside the feature's SDD artifacts in `.sdd/{feature}/` (or `.sdd/{initiative}/{deliverable-slug}/` for roadmap deliverables).
+ADRs stay **local files** — SCS has no `adr` artifact kind in this workflow. The upstream `design`, `research`, and `roadmap` artifacts the ADR draws on live in SCS on the feature/initiative concept (use the `artifacts_v3` skill to read them). The concept is named `{feature}` (standalone) or `{initiative}/{deliverable-slug}` (roadmap deliverable); the roadmap lives on the `{initiative}` concept.
 
-### ADR Numbering
+### ADR Numbering and Location
 
-If the project maintains a numbered ADR index (e.g., `docs/adr/`), follow that convention. Otherwise, store the ADR in the feature's `.sdd/` directory without a global number.
+If the project maintains a numbered ADR index (e.g., `docs/adr/`), follow that convention. Otherwise, store the ADR as a local `.sdd/{feature}/adr.md` (or `.sdd/{initiative}/{deliverable-slug}/adr.md`) without a global number.
 
 ## Process
 
 ### Step 1: Identify decisions worth recording
 
-Read the design at `{artifact_dir}/design.md`. Read research at `{artifact_dir}/research.md` if it exists — for roadmap deliverables it has been retired by the roadmap step, so fall back to `.sdd/{initiative}/roadmap.md` for context. Look for:
+Read the `design` artifact on the concept (via the `scs` MCP server; use the `artifacts_v3` skill). Read the `research` artifact on the concept if it exists — for roadmap deliverables it has been retired by the roadmap step, so fall back to the `roadmap` artifact on the `{initiative}` concept for context. Look for:
 
 - Places where alternatives were considered and one was chosen over others
 - Technology or infrastructure choices with tradeoffs
@@ -56,12 +56,12 @@ Spawn a subagent to write the ADR. Invoking this skill authorizes that subagent.
 **Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
-> Write an ADR for {feature} at `{artifact_dir}/adr.md`.
+> Write an ADR for {feature} and save it to the local ADR location (`{adr_path}` — a local file, per this skill's ADR Numbering and Location section).
 >
-> **Read these files:**
-> - Design: `{artifact_dir}/design.md`
-> - Research: `{artifact_dir}/research.md` if it exists; otherwise `.sdd/{initiative}/roadmap.md` (for roadmap deliverables)
-> - ADR template: templates/adr.template.md
+> **Read these inputs** (artifacts via the `scs` MCP server — use the `artifacts_v3` skill):
+> - Design: the `design` artifact on the concept `{concept_name}`
+> - Research: the `research` artifact on `{concept_name}` if it exists; otherwise the `roadmap` artifact on the `{initiative}` concept (for roadmap deliverables)
+> - ADR template: templates/adr.template.md (local)
 >
 > **Follow the template structure.** For each section:
 > - **Context**: 2-3 sentences. Written for someone who wasn't in the room. Why was a choice needed?

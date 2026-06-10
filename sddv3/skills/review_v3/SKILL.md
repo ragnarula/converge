@@ -12,13 +12,13 @@ Both this orchestrator and every reviewer subagent it spawns follow the `languag
 
 ## Practical Guidelines
 
-### Project Structure
+### Artifact Storage
 
-All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
+SDD artifacts are stored in SCS via the `scs` MCP server, not local files. Use the `artifacts_v3` skill for the storage contract. Review reads artifacts (roadmap, specification, design, tasks, research) on the concept named `{feature}` (standalone) or `{initiative}/{deliverable-slug}` (roadmap deliverable); the roadmap lives on the `{initiative}` concept. Review reads only — it does not save artifacts; findings are returned to the calling skill.
 
 ### Project Guidelines
 
-Use the `handbook_v3` skill to read and resolve project conventions before reviewing.
+Look for existing project documentation (README, CONTRIBUTING, docs/, CONTEXT.md, ADRs) to resolve project conventions before reviewing.
 
 ### Domain Skills
 
@@ -55,10 +55,10 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 >
 > Your job is to ensure the roadmap describes outcomes only and that every deliverable is independently shippable.
 >
-> **Read these files:**
-> - Roadmap: `.sdd/{initiative}/roadmap.md`
-> - Research: `.sdd/{initiative}/research.md` (if it still exists — retired after roadmap approval)
-> - Project conventions: use the `handbook_v3` skill
+> **Read these artifacts** (via the `scs` MCP server; use the `artifacts_v3` skill for the read mechanics):
+> - Roadmap: the `roadmap` artifact on the `{initiative}` concept
+> - Research: the `research` artifact on the `{initiative}` concept (if it still exists — retired after roadmap approval)
+> - Project conventions: look for existing project docs (README, CONTRIBUTING, docs/, ADRs)
 > - Language standard: use the `language_v3` skill
 >
 > **Check for:**
@@ -87,10 +87,10 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 >
 > Your job is to ensure only buildable, verifiable, behavioral requirements reach the design phase. The spec is the solution definition, agnostic of implementation details.
 >
-> **Read these files:**
-> - Specification: `{artifact_dir}/specification.md`
-> - Research: `{artifact_dir}/research.md` (if it exists)
-> - Project conventions: use the `handbook_v3` skill
+> **Read these artifacts** (via the `scs` MCP server; use the `artifacts_v3` skill for the read mechanics):
+> - Specification: the `specification` artifact on `{concept_name}`
+> - Research: the `research` artifact on `{concept_name}` (if it exists)
+> - Project conventions: look for existing project docs (README, CONTRIBUTING, docs/, ADRs)
 > - Language standard: use the `language_v3` skill
 > - EARS syntax reference: use the `ears_v3` skill (needed for the FR check below)
 >
@@ -149,11 +149,11 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 >
 > Your job is to ensure the design is architecturally unambiguous, sound, and feasible — so an implementer can build from it without clarifying questions.
 >
-> **Read these files:**
-> - Specification: `{artifact_dir}/specification.md`
-> - Design: `{artifact_dir}/design.md`
-> - Research: `{artifact_dir}/research.md` (if it exists)
-> - Project conventions: use the `handbook_v3` skill
+> **Read these artifacts** (via the `scs` MCP server; use the `artifacts_v3` skill for the read mechanics):
+> - Specification: the `specification` artifact on `{concept_name}`
+> - Design: the `design` artifact on `{concept_name}`
+> - Research: the `research` artifact on `{concept_name}` (if it exists)
+> - Project conventions: look for existing project docs (README, CONTRIBUTING, docs/, ADRs)
 > - Language standard: use the `language_v3` skill
 > - EARS syntax reference: use the `ears_v3` skill (FRs in the spec are EARS sentences)
 >
@@ -207,11 +207,11 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 >
 > Your job is to ensure every task is demoable on its own, every requirement is covered, and the ordering lets each task proceed once its blockers are done.
 >
-> **Read these files:**
-> - Specification: `{artifact_dir}/specification.md`
-> - Design: `{artifact_dir}/design.md`
-> - Tasks: `{artifact_dir}/tasks.md`
-> - Project conventions: use the `handbook_v3` skill
+> **Read these artifacts** (via the `scs` MCP server; use the `artifacts_v3` skill for the read mechanics):
+> - Specification: the `specification` artifact on `{concept_name}`
+> - Design: the `design` artifact on `{concept_name}`
+> - Tasks: the `tasks` artifact on `{concept_name}`
+> - Project conventions: look for existing project docs (README, CONTRIBUTING, docs/, ADRs)
 > - Language standard: use the `language_v3` skill
 >
 > **Load relevant domain skills.** Scan the spec, design, and task breakdown and load any that apply. Use them for the Slice soundness check below.
@@ -259,14 +259,14 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 >
 > Your job is to ensure the implementation matches the design, satisfies every spec AT, and contains no unfinished work.
 >
-> **Read these files:**
-> - Tasks: `{artifact_dir}/tasks.md`
-> - Design: `{artifact_dir}/design.md`
-> - Specification: `{artifact_dir}/specification.md` (needed for FR coverage check below)
+> **Read these artifacts** (via the `scs` MCP server; use the `artifacts_v3` skill for the read mechanics):
+> - Tasks: the `tasks` artifact on `{concept_name}`
+> - Design: the `design` artifact on `{concept_name}`
+> - Specification: the `specification` artifact on `{concept_name}` (needed for FR coverage check below)
 > - Language standard: use the `language_v3` skill
 >
 > **Steps:**
-> 1. Read `{artifact_dir}/specification.md` and list every FR and AT-XX. For each FR, confirm at least one task's `What to build` and ACs address it. Any FR not delivered is P0.
+> 1. Read the `specification` artifact on `{concept_name}` and list every FR and AT-XX. For each FR, confirm at least one task's `What to build` and ACs address it. Any FR not delivered is P0.
 > 2. Determine the implementation diff base from the current branch's upstream, merge base, or the branch recorded when requirements created the feature. If no base is clear, ask the user. Run the equivalent of `git diff {base}...HEAD` to scope the change.
 > 3. Verify each Modified or Added component from the design appears in the diff.
 > 4. Check the final state matches the design's component contracts and interfaces. Mid-stream tasks may implement only the slice their ACs need; partial implementation in earlier tasks is fine if a later task completes it.
@@ -276,7 +276,7 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 > 8. Test code quality: tests follow the same engineering standards as production code. Flag duplicated arrange blocks, copy-pasted assertions that differ only in inputs, inline fixtures that should be shared, test names that don't state the behaviour, and ad-hoc mocks where a project fixture exists.
 > 9. IaC and live-state: provisioning configs and imperative scripts (root IaC modules, env stacks, migrations, runbooks) should be linted in the diff, not executed by the implement worker. If an AT passed against an applied environment, confirm via tasks.md or commit messages that the user applied it. Reusable IaC modules carry acceptance tests via plan-time or policy assertions.
 > 10. SDD leakage: search for `FR-`, `NFR-`, `AT-`, `REQ-` in code, comments, docstrings, or test names.
-> 11. Verify project conventions via the `handbook_v3` skill: error handling, logging, naming, test structure, commit format.
+> 11. Verify project conventions against existing project docs (README, CONTRIBUTING, docs/, ADRs): error handling, logging, naming, test structure, commit format.
 > 12. Run tests, linters, and build.
 >
 > **Severity:** P0=explicit violation, P1=implied discrepancy, P2=ambiguity, P3=consideration. Group by severity, P0 first. Reject if any P0.

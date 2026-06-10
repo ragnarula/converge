@@ -1,6 +1,6 @@
 ---
 name: interface-design_v3
-description: Interface design rules for testability — accept dependencies, return results, keep surfaces small. Use this when designing components to ensure they are naturally testable. Loaded by the plan_v3 skill at design time.
+description: Interface design rules for testability — accept dependencies, return results, keep surfaces small. Use this when designing components to ensure they are naturally testable.
 version: 0.1.0
 ---
 

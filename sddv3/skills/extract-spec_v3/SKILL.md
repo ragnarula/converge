@@ -12,7 +12,7 @@ It runs before `plan`, as a sibling to `requirements`, when the work preserves e
 
 Both this orchestrator and every subagent it spawns follow the `language_v3` skill for tone and vocabulary in all output, including replies to the user.
 
-All SDD artifacts live in the feature artifact directory. Standalone features use `.sdd/{feature}/`; roadmap deliverables use `.sdd/{initiative}/{deliverable-slug}/`.
+SDD artifacts are stored in SCS via the `scs` MCP server, not local files. Use the `artifacts_v3` skill for the storage contract. Extract Spec writes the `specification` artifact on the concept named `{feature}` (standalone) or `{initiative}/{deliverable-slug}` (roadmap deliverable) — the same artifact `requirements` produces.
 
 ## What this skill does and does not guarantee
 
@@ -72,17 +72,18 @@ Ask the user why the refactor or migration is happening. The motivation goes in 
 
 ### Step 5: Write the specification
 
-Spawn a subagent to write the specification. Invoking this skill authorizes that subagent.
+Spawn a subagent to write the specification. Invoking this skill authorizes that subagent to use the `scs` tools.
 
 **Subagent prompt** (use a high-capability reasoning model):
 > Think hard.
 >
-> Write the specification for {feature} at `{artifact_dir}/specification.md`.
+> Write the specification for {feature} and save it as the `specification` artifact on the concept `{concept_name}` via the `scs` MCP server (create the concept, linked to the repository, if it does not exist).
 >
 > Your job is to define the preserved behavior of the area being refactored, as a behavioral specification — what the system does today for users, operators, auditors, and reviewers, expressed independently of the current implementation. The specification is agnostic of implementation details: internal types, APIs, data structures, libraries, frameworks, and architectural patterns belong to the design phase.
 >
 > **Read:**
 > - Specification template: `templates/specification.template.md`
+> - Storage contract: use the `artifacts_v3` skill (how to read/write artifacts via `scs`)
 > - EARS syntax reference: use the `ears_v3` skill
 > - Language standard: use the `language_v3` skill
 >
@@ -102,11 +103,11 @@ Spawn a subagent to write the specification. Invoking this skill authorizes that
 > - **Existing-test annotation.** Where an existing test already covers an FR's observable, append `Existing test: {path}` to the AT. The implementer reuses that test as the AT's gate.
 > - **Pin annotation.** Where no existing test covers an FR's observable, append `Pin test required` to the AT. `plan` and `tasks` will schedule the pin test as a task that lands before any refactor work begins; the implementer writes the test, runs it against the current code, and expects it to pass (the existing implementation already satisfies the FR).
 >
-> Save the document when done.
+> Save it as the `specification` artifact on `{concept_name}` via `save_artifact_revision` when done (omit `base_revision_id` for the first revision).
 
 ### Step 6: Review
 
-Use the `review_v3` skill for a Specification Review of `{artifact_dir}/specification.md`.
+Use the `review_v3` skill for a Specification Review of the `specification` artifact on the concept.
 
 ### Step 7: Fix issues (if any)
 
@@ -114,11 +115,11 @@ If the review finds P0 or P1 issues, spawn a subagent to fix them.
 
 > Think hard.
 >
-> Fix the following issues in the specification at `{artifact_dir}/specification.md`. Keep all other parts of the specification as they are.
+> Fix the following issues in the `specification` artifact on the concept `{concept_name}` (read it via the `scs` MCP server; use the `artifacts_v3` skill for read/write mechanics). Keep all other parts of the specification as they are.
 >
 > {paste review findings here}
 >
-> Save the document when done.
+> Save the updated specification as a new revision (pass the current revision's id as `base_revision_id`) when done.
 
 Repeat until the review passes.
 

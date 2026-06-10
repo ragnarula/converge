@@ -1,94 +1,95 @@
-# SDD v2 — Spec Driven Development for Agent Runtimes
+# SDD v3 — Spec Driven Development for Agent Runtimes
 
-An agent-runtime plugin for structured feature development. Turn an idea into EARS requirements, an architectural design, demoable tracer-bullet tasks, and an implementation — with a review gate at every step.
+An agent-runtime plugin for **problem-driven** development. Sharpen a vague problem into a well-posed definition, research it, converge on an approach and a specification, break that into tasks, and implement them — with review gates along the way.
+
+Artifacts are stored in the **Simple Context Service (SCS)** — a remote, versioned store reached through the `scs` MCP server — not in local files. Each piece of work is an SCS *concept* holding its `problem`, `research`, `specification`, and `tasks` artifacts. Only ADRs remain local files. See the `artifacts` reference skill for the storage contract, including how to connect and sign in to the `scs` server.
 
 ## Workflow
 
 ```
-roadmap (optional) → research (optional) → requirements | extract-spec → plan → tasks → implement → review → adr
+problem-definition → problem-research → problem-converge → problem-tasks → implement (+ reviews)
 ```
 
-Use `requirements` for greenfield work, `extract-spec` for refactors and migrations.
+- **problem-definition** — sharpen a vague pain point into a well-posed problem: what it is, who is affected, what success looks like.
+- **problem-research** — decide the questions that must be answered, then answer them as a neutral, fully-explained description of the current state (not a recommendation).
+- **problem-converge** — work with the user to weigh candidate approaches, pick a direction, and write the specification (requirements in EARS, design, test plan, docs).
+- **problem-tasks** — break the spec into ordered, demoable tasks; reviews and fixes itself, raising to the user only when a fix would conflict with the spec.
+- **implement** — one subagent per task, TDD against each task's acceptance criteria, then an implementation review.
 
-Each step is a skill you can invoke independently or chain via `express`.
+Domain skills are applied throughout — at converge to validate candidate approaches, and inside reviews.
+
+For a refactor or migration, use **extract-spec** to capture the behaviour-preservation contract as a specification instead of converging on a new direction.
 
 ## Workflow skills
 
-| Skill | Purpose | Artifact |
-|-------|---------|----------|
-| `research` | Guided problem exploration (Observe → Orient → Diverge → Evaluate → Synthesize) | `.sdd/{feature}/research.md` |
-| `roadmap` | Break a too-large initiative into vertical deliverables, each sized to one spec | `.sdd/{initiative}/roadmap.md` |
-| `requirements` | Discovery interview → behavioral specification in EARS, with Given/When/Then acceptance tests | `.sdd/{feature}/specification.md` |
-| `extract-spec` | Sibling to `requirements` for refactors and migrations. Reads existing code, interviews the user, produces the same spec shape with each preserved FR backed by an existing test or a pin test scheduled before refactor work begins | `.sdd/{feature}/specification.md` |
-| `plan` | Architectural design as a set of components (Modified / Added / Used) traceable to FRs | `.sdd/{feature}/design.md` |
-| `tasks` | Demoable tracer-bullet tasks with prose `What to build`, Given/When/Then ACs, and explicit `Blocked by` | `.sdd/{feature}/tasks.md` |
-| `implement` | One subagent per task, TDD against the task's ACs, review at the end | commits |
-| `review` | Roadmap / spec / design / task / implementation review with P0–P3 severity | report |
-| `adr` | Architecture Decision Record for key choices | `.sdd/{feature}/adr.md` |
-| `express` | Chains requirements → plan → tasks → implement end-to-end | all of the above |
-| `setup` | Registers context monitoring hooks + discovers project conventions | `.sdd/handbook.md` |
-| `handbook` | Reads and resolves project conventions for all skills | — |
+Artifacts are addressed by SCS concept + kind. The concept is `{feature}` (kebab-case, e.g. `user-authentication`).
+
+| Skill | Purpose | Artifact (SCS kind) |
+|-------|---------|---------------------|
+| `problem-definition` | Questioning interview → a well-posed problem (what, who, success, constraints, evidence) | `problem` |
+| `problem-research` | Enumerate the askable questions (kill-shot / disconfirming first), then research them into a standalone description of current state | `research` |
+| `problem-converge` | Weigh approaches with the user, pick a direction, write the specification (EARS requirements, design, test plan, docs) | `specification` |
+| `extract-spec` | Sibling to `problem-converge` for refactors and migrations — captures preserved behaviour as a spec, each FR backed by an existing or pin test | `specification` |
+| `problem-tasks` | Break the spec into ordered demoable tasks; auto-reviews and fixes, escalating only on spec conflict | `tasks` |
+| `tasks` | Design-driven tracer-bullet task breakdown (the original, fuller breakdown) | `tasks` |
+| `implement` | One subagent per task, TDD against the task's ACs, review at the end | commits + `tasks` revisions |
+| `review` | Implementation review with P0–P3 severity | report |
+| `adr` | Architecture Decision Record for key choices | local `adr.md` |
 
 ## Reference skills
 
-Loaded by the workflow skills rather than invoked directly.
+Used by the workflow skills rather than invoked directly.
 
-| Skill | Purpose | Loaded by |
-|-------|---------|-----------|
-| `ears` | EARS syntax patterns (ubiquitous, event-driven, state-driven, unwanted-behavior, optional-feature) | `requirements`, `review` |
-| `interface-design` | Design components for testability (accept dependencies, return results, small surface) | `plan` |
-| `tdd` | Red-green-refactor with the dependency-count heuristic for test depth | `implement` |
-| `mocking` | Mock at system boundaries only, never internal modules | `tdd` |
-| `language` | Active voice, simple English, no metaphors or slang — applied to docs and to interactive replies | every workflow skill |
+| Skill | Purpose |
+|-------|---------|
+| `ears` | EARS syntax patterns (ubiquitous, event-driven, state-driven, unwanted-behavior, optional-feature) |
+| `interface-design` | Design components for testability (accept dependencies, return results, small surface) |
+| `tdd` | Red-green-refactor with the dependency-count heuristic for test depth |
+| `mocking` | Mock at system boundaries only, never internal modules |
+| `language` | Active voice, simple English, no metaphors or slang — applied to docs and to interactive replies |
+| `artifacts` | SCS storage contract — concept addressing, read/write/conflict mechanics, repository linking, auth preflight |
 
-## The Handbook
+## Domain skills
 
-The single most impactful thing you can do for output quality is write a good `.sdd/handbook.md`. Every skill reads it. Every subagent follows it. Without it, agents guess at conventions and get things wrong — test locations, error handling patterns, naming, commit format, how to run linters.
+Specialized lenses applied at convergence and in reviews:
 
-Run the `setup` skill to auto-discover conventions from your codebase, then refine the result. A good handbook covers:
+`security` · `api-design` · `distributed-systems` · `data-engineering` · `devops-sre` · `infrastructure` · `low-level-systems`
+
+They are used to validate candidate approaches during `problem-converge` (flag unsolvable, costly, or user-harming options) and to stress-test the specification and task breakdown for soundness and feasibility.
+
+## Project conventions
+
+Skills resolve project conventions by reading your **existing documentation** — README, CONTRIBUTING, `docs/`, `CONTEXT.md`, ADRs, and config files. There is no separate handbook to maintain; the skills look at what's already in the repo, and fall back to the existing code and test suite for what isn't written down.
+
+The single most impactful thing you can do for output quality is document the conventions an agent would otherwise get wrong — test locations, error handling patterns, naming, commit format, how to run linters. Capture them where they naturally live (README, CONTRIBUTING, `docs/`):
 
 - **Error handling** — error types, propagation patterns
-- **Testing** — framework, file locations, fixtures, how to run the suite (`tdd` decides *how many* tests via the dependency-count heuristic; the handbook covers *where* they live and *how* they're written)
+- **Testing** — framework, file locations, fixtures, how to run the suite (`tdd` decides *how many* tests via the dependency-count heuristic; your docs and test suite cover *where* they live and *how* they're written)
 - **Naming** — files, functions, modules
 - **Pre-commit validation** — lint, format, type check commands
 - **Project structure** — where new code goes
 
-The handbook doesn't need to be exhaustive — it needs to capture what an agent would get wrong without it.
-
-## Domain skills
-
-Specialized review lenses loaded when relevant:
-
-`security` · `api-design` · `distributed-systems` · `data-engineering` · `devops-sre` · `infrastructure` · `low-level-systems`
-
-Each review stage uses these differently:
-
-- **Spec review** — feasibility only (flag requirements the domain says are physically impossible or contradictory).
-- **Design review** — architectural soundness *and* feasibility (flag wrong/weak design choices and infeasible choices).
-- **Task breakdown review** — slice soundness (flag slice shapes or orderings the domain says create real problems).
-
 ## Context Management
 
-Some host runtimes can register hooks that prevent context exhaustion. The included Claude Code hooks are optional host integration, not part of the core SDD contract:
+Some host runtimes can register hooks that prevent context exhaustion. The bundled Claude Code hooks (in `sddv3/hooks/`) are optional host integration, not part of the core contract:
 
 - **sdd-statusline.js** — shows context usage in the status bar, writes metrics to a bridge file
 - **sdd-context-monitor.js** — reads the bridge file after tool uses, warns the agent at 35% remaining, stops it at 25%
 
-Run the `setup` skill once per project to discover project guidelines. If the host supports the included hooks, `setup` can also register them.
+Register them by hand in your settings (a `statusLine` command and a `PostToolUse` hook pointing at the two scripts) if your host supports them.
 
 ## Runtime Portability
 
-The SDD workflow is defined in terms of capabilities, not one agent host's tool names. When a skill mentions one of these capability classes, use the equivalent tool in the current runtime:
-
-Skills use `{artifact_dir}` for the resolved SDD artifact directory. Standalone features resolve to `.sdd/{feature}/`; roadmap deliverables resolve to `.sdd/{initiative}/{deliverable-slug}/`.
+The workflow is defined in terms of capabilities, not one agent host's tool names. When a skill mentions one of these capability classes, use the equivalent tool in the current runtime:
 
 | Capability | Meaning | Fallback if unavailable |
 |------------|---------|-------------------------|
 | File discovery | Find files and paths, such as globbing for `SKILL.md`, templates, hooks, or source files | Use shell commands such as `rg --files`, `find`, or the runtime's file search |
-| File read/write | Read templates and artifacts; create or update `.sdd/**` files | Use normal filesystem tools available to the runtime |
+| File read/write | Read existing project docs; create or update local ADR files | Use normal filesystem tools available to the runtime |
+| SCS artifact store | Read and write versioned artifacts via the `scs` MCP server (concept + kind addressing) | Required — the `artifacts` skill defines the contract and the connect/sign-in preflight |
 | Codebase exploration | Search and read source, tests, docs, configs, and git history to understand current behavior | Use targeted shell searches and file reads; keep exploration bounded by the skill's stated read limits |
-| Subagent | Run a writing, implementation, or review step in a spawned subagent | Required for workflow steps that say to spawn a subagent. Invoking an SDD workflow skill is explicit user authorization to spawn those subagents |
-| High-capability reasoning model | A model suitable for specification, design, roadmap, ADR, and review work | Use the strongest available reasoning model |
+| Subagent | Run a writing, research, implementation, or review step in a spawned subagent | Required for steps that say to spawn a subagent. Invoking a workflow skill is explicit user authorization to spawn those subagents |
+| High-capability reasoning model | A model suitable for problem framing, research synthesis, specification, and review work | Use the strongest available reasoning model |
 | Implementation-capable model | A model suitable for coding tasks, tests, and local verification | Use the default coding model or strongest available implementation model |
 | Host configuration update | Register optional statusline, hook, or settings integrations | If no config-update capability exists, print the exact manual configuration for the user |
 
@@ -99,27 +100,24 @@ Host-specific names in older prompts map as follows:
 - `Glob` means file discovery.
 - `Task tool` means spawn a subagent.
 - `model: opus`, `model: sonnet`, and `Ultrathink` mean the model classes above, not specific required model IDs.
-- `update-config` means host configuration update.
 
 If a preferred capability is missing, do not stop unless the skill explicitly requires a host integration. Continue with the fallback and record the limitation in the artifact or final report.
 
 ### Subagent Authorization
 
-When the user invokes an SDD workflow skill (`research`, `requirements`, `extract-spec`, `roadmap`, `plan`, `tasks`, `implement`, `review`, `adr`, or `express`), treat that invocation as an explicit request to spawn subagents for the skill's subagent steps. Do not ask for separate delegation permission unless the subagent would exceed the skill's normal scope or perform a live-state mutation that already requires user confirmation.
+When the user invokes a workflow skill (`problem-definition`, `problem-research`, `problem-converge`, `extract-spec`, `problem-tasks`, `tasks`, `implement`, `review`, or `adr`), treat that invocation as an explicit request to spawn subagents for the skill's subagent steps. Do not ask for separate delegation permission unless the subagent would exceed the skill's normal scope or perform a live-state mutation that already requires user confirmation.
 
 ## Usage
 
 ```
-Use roadmap to break {initiative} into deliverables
-Use research to explore the problem space for {feature}
-Use requirements to write a spec for {feature}
+Use problem-definition to frame the problem behind {pain point}
+Use problem-research to research the open questions for {feature}
+Use problem-converge to pick an approach and write the spec for {feature}
 Use extract-spec to write a spec for a refactor or migration of {area}
-Use plan to design {feature}
-Use tasks to break down {feature}
+Use problem-tasks to break {feature} into tasks
 Use implement to build {feature}
-Use review to review {feature}
+Use review to review the implementation of {feature}
 Use adr to record decisions for {feature}
-Use express to run the full workflow for {feature}
 ```
 
 ## License

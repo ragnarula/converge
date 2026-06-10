@@ -1,6 +1,6 @@
 ---
 name: mocking_v3
-description: Mocking rules — where test doubles are appropriate and where they aren't. Mock at system boundaries only, never your own modules. Use this when writing tests that need mocks, fakes, or stubs. Loaded by the implement_v3 skill.
+description: Mocking rules — where test doubles are appropriate and where they aren't. Mock at system boundaries only, never your own modules. Use this when writing tests that need mocks, fakes, or stubs.
 version: 0.1.0
 ---
 
