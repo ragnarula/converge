@@ -1,5 +1,5 @@
 {
   "name": "sddv3",
-  "version": "0.1.0",
-  "description": "Spec Driven Development v3 — sddv2's structured workflow (roadmap, research, requirements, plan, tasks, implement, review) with first-class critical-thinking skills layered across every step."
+  "version": "0.2.0",
+  "description": "Problem-driven development — define a problem, research it, converge on a specification, break it into tasks, and implement with reviews. Domain-specific critical-thinking skills apply throughout; artifacts are stored in SCS."
 }
