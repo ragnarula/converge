@@ -29,6 +29,8 @@ Rules:
 - Order tasks so dependencies point backwards: task N's "Blocked by" references only lower-numbered tasks. The set forms a flat ordered list and a DAG.
 - Every requirement in the spec is addressed by at least one task. Every test named in the spec's test plan is produced by some task's work.
 - Each task ends green on its own. Partial components are fine — the last task to touch a component completes it.
+- Every task has at least one demoable acceptance criterion. The single exception is a contract change consumed by other code (e.g. a signature or schema update); flag any such task as a candidate for a separate prior PR.
+- Context budget: each task, plus the code the implementer will curate around it, should fit comfortably in 30–40% of a context window. If a task looks heavy, split it.
 
 Follow the `language` skill for tone and vocabulary. Output only the task list.
 

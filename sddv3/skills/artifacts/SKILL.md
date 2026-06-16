@@ -50,7 +50,7 @@ Each artifact is addressed by a **concept name** plus an **artifact kind**.
 | `frame` | feature | `problem` |
 | `explore` | feature | `research` |
 | `converge` / `extract-spec` | feature | `specification` |
-| `breakdown` / `tasks` | feature | `tasks` |
+| `breakdown` | feature | `tasks` |
 
 `design`, `roadmap`, and `adr` are not produced in this flow (`adr` stays local).
 

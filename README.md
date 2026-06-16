@@ -31,7 +31,6 @@ Artifacts are addressed by SCS concept + kind. The concept is `{feature}` (kebab
 | `converge` | Weigh approaches with the user, pick a direction, write the specification (EARS requirements, design, test plan, docs) | `specification` |
 | `extract-spec` | Sibling to `converge` for refactors and migrations — captures preserved behaviour as a spec, each FR backed by an existing or pin test | `specification` |
 | `breakdown` | Break the spec into ordered demoable tasks; auto-reviews and fixes, escalating only on spec conflict | `tasks` |
-| `tasks` | Design-driven tracer-bullet task breakdown (the original, fuller breakdown) | `tasks` |
 | `implement` | One subagent per task, TDD against the task's ACs, review at the end | commits + `tasks` revisions |
 | `review` | Implementation review with P0–P3 severity | report |
 | `adr` | Architecture Decision Record for key choices | local `adr.md` |
@@ -105,7 +104,7 @@ If a preferred capability is missing, do not stop unless the skill explicitly re
 
 ### Subagent Authorization
 
-When the user invokes a workflow skill (`frame`, `explore`, `converge`, `extract-spec`, `breakdown`, `tasks`, `implement`, `review`, or `adr`), treat that invocation as an explicit request to spawn subagents for the skill's subagent steps. Do not ask for separate delegation permission unless the subagent would exceed the skill's normal scope or perform a live-state mutation that already requires user confirmation.
+When the user invokes a workflow skill (`frame`, `explore`, `converge`, `extract-spec`, `breakdown`, `implement`, `review`, or `adr`), treat that invocation as an explicit request to spawn subagents for the skill's subagent steps. Do not ask for separate delegation permission unless the subagent would exceed the skill's normal scope or perform a live-state mutation that already requires user confirmation.
 
 ## Usage
 

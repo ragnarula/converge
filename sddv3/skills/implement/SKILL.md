@@ -1,16 +1,16 @@
 ---
 name: implement
 version: 0.2.3
-description: Implement SDD features task-by-task following the design document. Use this skill when implementing features or auto-implementing designs. One subagent per task, review at the end. Use the tasks skill for task breakdown.
+description: Implement SDD features task-by-task following the specification. Use this skill when implementing features or auto-implementing a specification. One subagent per task, review at the end. Use the breakdown skill for task breakdown.
 ---
 
 # Implement
 
-**Implement** delivers the tasks one at a time, with each task gated by its acceptance criteria. It runs after tasks and before merge.
+**Implement** delivers the tasks one at a time, with each task gated by its acceptance criteria. It runs after breakdown and before merge.
 
 Both this orchestrator and every subagent it spawns follow the `language` skill for tone and vocabulary in all output, including replies to the user and commit messages.
 
-SDD artifacts are stored in SCS via the `scs` MCP server, not local files. Use the `artifacts` skill for the storage contract. Implement reads the `tasks` and `design` artifacts on the concept named `{feature}` (standalone) or `{initiative}/{deliverable-slug}` (roadmap deliverable), and saves new revisions of the `tasks` artifact as task status changes.
+SDD artifacts are stored in SCS via the `scs` MCP server, not local files. Use the `artifacts` skill for the storage contract. Implement reads the `tasks` and `specification` artifacts on the concept named `{feature}`, and saves new revisions of the `tasks` artifact as task status changes.
 
 ## Orchestrator discipline
 
@@ -29,8 +29,8 @@ You are a coordinator. Keep your own context lean across all tasks:
 Read the `tasks` artifact on the concept (via `get_artifact`) for the ordered task list. For each task in order, prepare and spawn a subagent:
 
 1. Extract the single task from the `tasks` artifact (Status, Blocked by, What to build, Acceptance criteria, Notes).
-2. Extract from the `design` artifact only the component sections this task touches.
-3. Paste both into the prompt below. The design already incorporates the specification, so the specification itself stays out.
+2. Extract from the `specification` artifact only the design and requirement sections this task touches.
+3. Paste both into the prompt below.
 
 **Subagent prompt** (use an implementation-capable model):
 > Think hard.
@@ -42,8 +42,8 @@ Read the `tasks` artifact on the concept (via `get_artifact`) for the ordered ta
 > **Task:**
 > {paste the single task here}
 >
-> **Relevant design context:**
-> {paste relevant design sections here}
+> **Relevant specification context:**
+> {paste relevant design and requirement sections here}
 >
 > **Project guidelines:** Look for existing project docs (README, CONTRIBUTING, docs/, ADRs) to resolve conventions.
 >
