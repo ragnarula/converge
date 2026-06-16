@@ -7,13 +7,13 @@ Artifacts are stored in the **Simple Context Service (SCS)** — a remote, versi
 ## Workflow
 
 ```
-problem-definition → problem-research → problem-converge → problem-tasks → implement (+ reviews)
+frame → explore → converge → breakdown → implement (+ reviews)
 ```
 
-- **problem-definition** — sharpen a vague pain point into a well-posed problem: what it is, who is affected, what success looks like.
-- **problem-research** — decide the questions that must be answered, then answer them as a neutral, fully-explained description of the current state (not a recommendation).
-- **problem-converge** — work with the user to weigh candidate approaches, pick a direction, and write the specification (requirements in EARS, design, test plan, docs).
-- **problem-tasks** — break the spec into ordered, demoable tasks; reviews and fixes itself, raising to the user only when a fix would conflict with the spec.
+- **frame** — sharpen a vague pain point into a well-posed problem: what it is, who is affected, what success looks like.
+- **explore** — decide the questions that must be answered, then answer them as a neutral, fully-explained description of the current state (not a recommendation).
+- **converge** — work with the user to weigh candidate approaches, pick a direction, and write the specification (requirements in EARS, design, test plan, docs).
+- **breakdown** — break the spec into ordered, demoable tasks; reviews and fixes itself, raising to the user only when a fix would conflict with the spec.
 - **implement** — one subagent per task, TDD against each task's acceptance criteria, then an implementation review.
 
 Domain skills are applied throughout — at converge to validate candidate approaches, and inside reviews.
@@ -26,11 +26,11 @@ Artifacts are addressed by SCS concept + kind. The concept is `{feature}` (kebab
 
 | Skill | Purpose | Artifact (SCS kind) |
 |-------|---------|---------------------|
-| `problem-definition` | Questioning interview → a well-posed problem (what, who, success, constraints, evidence) | `problem` |
-| `problem-research` | Enumerate the askable questions (kill-shot / disconfirming first), then research them into a standalone description of current state | `research` |
-| `problem-converge` | Weigh approaches with the user, pick a direction, write the specification (EARS requirements, design, test plan, docs) | `specification` |
-| `extract-spec` | Sibling to `problem-converge` for refactors and migrations — captures preserved behaviour as a spec, each FR backed by an existing or pin test | `specification` |
-| `problem-tasks` | Break the spec into ordered demoable tasks; auto-reviews and fixes, escalating only on spec conflict | `tasks` |
+| `frame` | Questioning interview → a well-posed problem (what, who, success, constraints, evidence) | `problem` |
+| `explore` | Enumerate the askable questions (kill-shot / disconfirming first), then research them into a standalone description of current state | `research` |
+| `converge` | Weigh approaches with the user, pick a direction, write the specification (EARS requirements, design, test plan, docs) | `specification` |
+| `extract-spec` | Sibling to `converge` for refactors and migrations — captures preserved behaviour as a spec, each FR backed by an existing or pin test | `specification` |
+| `breakdown` | Break the spec into ordered demoable tasks; auto-reviews and fixes, escalating only on spec conflict | `tasks` |
 | `tasks` | Design-driven tracer-bullet task breakdown (the original, fuller breakdown) | `tasks` |
 | `implement` | One subagent per task, TDD against the task's ACs, review at the end | commits + `tasks` revisions |
 | `review` | Implementation review with P0–P3 severity | report |
@@ -55,7 +55,7 @@ Specialized lenses applied at convergence and in reviews:
 
 `security` · `api-design` · `distributed-systems` · `data-engineering` · `devops-sre` · `infrastructure` · `low-level-systems`
 
-They are used to validate candidate approaches during `problem-converge` (flag unsolvable, costly, or user-harming options) and to stress-test the specification and task breakdown for soundness and feasibility.
+They are used to validate candidate approaches during `converge` (flag unsolvable, costly, or user-harming options) and to stress-test the specification and task breakdown for soundness and feasibility.
 
 ## Project conventions
 
@@ -105,16 +105,16 @@ If a preferred capability is missing, do not stop unless the skill explicitly re
 
 ### Subagent Authorization
 
-When the user invokes a workflow skill (`problem-definition`, `problem-research`, `problem-converge`, `extract-spec`, `problem-tasks`, `tasks`, `implement`, `review`, or `adr`), treat that invocation as an explicit request to spawn subagents for the skill's subagent steps. Do not ask for separate delegation permission unless the subagent would exceed the skill's normal scope or perform a live-state mutation that already requires user confirmation.
+When the user invokes a workflow skill (`frame`, `explore`, `converge`, `extract-spec`, `breakdown`, `tasks`, `implement`, `review`, or `adr`), treat that invocation as an explicit request to spawn subagents for the skill's subagent steps. Do not ask for separate delegation permission unless the subagent would exceed the skill's normal scope or perform a live-state mutation that already requires user confirmation.
 
 ## Usage
 
 ```
-Use problem-definition to frame the problem behind {pain point}
-Use problem-research to research the open questions for {feature}
-Use problem-converge to pick an approach and write the spec for {feature}
+Use frame to frame the problem behind {pain point}
+Use explore to research the open questions for {feature}
+Use converge to pick an approach and write the spec for {feature}
 Use extract-spec to write a spec for a refactor or migration of {area}
-Use problem-tasks to break {feature} into tasks
+Use breakdown to break {feature} into tasks
 Use implement to build {feature}
 Use review to review the implementation of {feature}
 Use adr to record decisions for {feature}
