@@ -1,6 +1,6 @@
 {
   "name": "sddv3",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Problem-driven development — define a problem, research it, converge on a specification, break it into tasks, and implement with reviews. Domain-specific critical-thinking skills apply throughout; artifacts are stored in SCS.",
   "skills": "./skills/"
 }
