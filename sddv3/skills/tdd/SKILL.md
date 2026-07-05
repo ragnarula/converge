@@ -48,7 +48,7 @@ This is a heuristic, not a threshold. Weigh the cost of a bug against the cost o
 
 ## Where and how to write tests
 
-1. Look for existing project docs (README, CONTRIBUTING, docs/) covering test file locations, fixtures, assertion style, framework, runner, and naming.
+1. Use the `conventions` skill to find the repository's testing guidelines — test file locations, fixtures, assertion style, framework, runner, and naming.
 2. Explore the existing test suite for what the docs leave implicit — fixtures and helpers for the dependencies you're touching, arrangement patterns, parameterisation conventions.
 
 Reuse what exists. Use real code paths; mock only at system boundaries (see the `mocking` skill).

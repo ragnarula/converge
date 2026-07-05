@@ -1,12 +1,12 @@
 ---
 name: review
-description: Review specifications, designs, and implementations for SDD features. Use this skill when reviewing specs, designs, or implementations. Produces structured review reports with severity-categorized findings.
+description: Review specifications, designs, task breakdowns, and implementations for SDD features. Use this skill when reviewing specs, designs, task breakdowns, or implementations. Produces structured review reports with severity-categorized findings.
 version: 0.3.4
 ---
 
 # Review
 
-**Review** gates every SDD artifact — roadmap, specification, design, task breakdown, implementation — before it leaves its skill. It's invoked from each prior skill, not standalone.
+**Review** gates every SDD artifact — specification, design, task breakdown, implementation — before it leaves its skill. It's invoked from each prior skill, not standalone.
 
 Both this orchestrator and every reviewer subagent it spawns follow the `language` skill for tone and vocabulary in all output, including review reports.
 
@@ -14,11 +14,11 @@ Both this orchestrator and every reviewer subagent it spawns follow the `languag
 
 ### Artifact Storage
 
-SDD artifacts are stored in SCS via the `scs` MCP server, not local files. Use the `artifacts` skill for the storage contract. Review reads artifacts (roadmap, specification, design, tasks, research) on the concept named `{feature}` (standalone) or `{initiative}/{deliverable-slug}` (roadmap deliverable); the roadmap lives on the `{initiative}` concept. Review reads only — it does not save artifacts; findings are returned to the calling skill.
+SDD artifacts are stored in SCS via the `scs` MCP server, not local files. Use the `artifacts` skill for the storage contract. Review reads whatever artifacts exist (problem, research, specification, design, tasks) on the concept named `{feature}`. Review reads only — it does not save artifacts; findings are returned to the calling skill.
 
 ### Project Guidelines
 
-Look for existing project documentation (README, CONTRIBUTING, docs/, CONTEXT.md, ADRs) to resolve project conventions before reviewing.
+Use the `conventions` skill to discover the repository's guidelines, and check the artifact under review adheres to them.
 
 ### Domain Skills
 
@@ -46,38 +46,6 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 
 ---
 
-### Roadmap Review
-
-**Subagent prompt** (use a high-capability reasoning model):
-> Think hard.
->
-> Review the roadmap for {INITIATIVE}.
->
-> Your job is to ensure the roadmap describes outcomes only and that every deliverable is independently shippable.
->
-> **Read these artifacts** (via the `scs` MCP server; use the `artifacts` skill for the read mechanics):
-> - Roadmap: the `roadmap` artifact on the `{initiative}` concept
-> - Research: the `research` artifact on the `{initiative}` concept (if it still exists — retired after roadmap approval)
-> - Project conventions: look for existing project docs (README, CONTRIBUTING, docs/, ADRs)
-> - Language standard: use the `language` skill
->
-> **Check for:**
-> - **Outcomes only.** No architecture, components, libraries, code, file paths, or data shapes anywhere in the document. Flag any implementation detail. The roadmap's job is what users/operators can do after each step, not how it's built.
-> - **Problem and Motivation** are present at the top. Problem in user/business terms (not technical). Motivation explains why now. Flag missing or generic versions.
-> - Every deliverable is a vertical outcome — a user/operator can do something after that they couldn't before. Flag any deliverable that's a layer ("build the API"), a tech component ("set up the queue"), or a phase ("Phase 1").
-> - Every deliverable's Outcome field names a specific user/operator/business actor and what they can do after. Flag generic outcomes ("improves the system", "enables future work").
-> - In scope / Out of scope describe outcomes, not work items. Flag entries that name internal subsystems or services.
-> - Every deliverable fits one spec (~1 day). Flag any that look multi-day or multi-subsystem — these need splitting along a scope axis.
-> - Out of scope is present and load-bearing. Flag deliverables that don't state what's deliberately excluded.
-> - Most deliverables are standalone. If every deliverable depends on D-01, D-01 is plumbing — flag for reshape.
-> - Sequencing rationale explains *why* this order in outcome terms, not just lists the order. Flag missing or trivial rationale.
-> - No leakage of research narrative (Observe/Orient/Diverge/Evaluate prose) — the roadmap is a forward plan, not a synthesis.
-> - Roadmap is concise (under 200 lines). Flag if longer.
->
-> **Severity:** P0=explicit violation, P1=implied discrepancy, P2=ambiguity, P3=consideration. Group by severity, P0 first. Reject if any P0.
-
----
-
 ### Specification Review
 
 **Subagent prompt** (use a high-capability reasoning model):
@@ -85,14 +53,14 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 >
 > Review the specification for {feature}.
 >
-> Your job is to ensure only buildable, verifiable, behavioral requirements reach the design phase. The spec is the solution definition, agnostic of implementation details.
+> Your job is to ensure the spec states an unambiguous, verifiable, solution-independent *what* — so design and breakdown build on a clear, agreed target. The spec defines outcomes, not implementation.
 >
-> **Read these artifacts** (via the `scs` MCP server; use the `artifacts` skill for the read mechanics):
-> - Specification: the `specification` artifact on `{concept_name}`
-> - Research: the `research` artifact on `{concept_name}` (if it exists)
-> - Project conventions: look for existing project docs (README, CONTRIBUTING, docs/, ADRs)
-> - Language standard: use the `language` skill
-> - EARS syntax reference: use the `ears` skill (needed for the FR check below)
+> **Read whatever exists** for the concept (via the `scs` MCP server; use the `artifacts` skill for the read mechanics). The spec is required; the rest are optional, and a missing one returns `artifact_has_no_saved_revision` — treat it as absent and skip the checks that depend on it:
+> - Specification: the `specification` artifact on `{concept_name}` — the artifact under review.
+> - Problem: the `problem` artifact on `{concept_name}`.
+> - Research: the `research` artifact on `{concept_name}` (if it exists).
+> - Project conventions: use the `conventions` skill to discover the repository's guidelines.
+> - Language standard: use the `language` skill. EARS reference: use the `ears` skill.
 >
 > **Load relevant domain skills.** Scan the spec and load any that apply. Use them solely for the Domain feasibility check below — flagging infeasible or contradictory requirements, NOT missing solution-space concerns.
 > - **distributed-systems**: multiple services, network coordination, eventual consistency
@@ -103,38 +71,25 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 > - **data-engineering**: pipelines, ETL, schema evolution, data quality
 > - **api-design**: public/internal APIs, versioning, contracts
 >
-> **Check for:**
-> - Every requirement describes WHAT and WHY, never HOW
-> - Requirements are behaviors, not solutions (no architecture, libraries, or patterns prescribed)
-> - Requirements use user/domain language, not internal system terminology — "when content is uploaded to a store" not "when a KV write succeeds"; "the system records the change" not "a StorageEvent is emitted". If a requirement names internal types, APIs, or data structures, it belongs in the design, not the spec.
-> - Scope fits a single iteration
-> - No conflicts with existing functionality or project conventions
-> - No vague/unmeasurable language ("fast", "secure", "user-friendly")
-> - No technology choices or implementation assumptions embedded in requirements
-> - If research exists, check that it was used correctly — requirements should reflect problem context and constraints from the research, not technical approaches or architecture that belong in the design
+> **Check 1 — Scope unambiguity (primary).** The spec should have been grilled until its scope is clear. Read every requirement and the scope boundaries as an adversary hunting for a second reading. Flag:
+> - Any requirement that could be read more than one way (P0 if it would send design or implementation in the wrong direction, else P2).
+> - Any boundary left vague — where the work starts and stops, what is in or out of scope — that a designer or implementer would have to guess at (P0).
+> - Edge cases the requirements leave unresolved where the right outcome is not obvious (P1/P2).
 >
-> **Functional Requirement checks (EARS):**
-> - Every FR is a single EARS statement using one of the canonical patterns (see the `ears` skill). Flag any FR not in EARS shape.
-> - Each FR has only a title and a `Statement:` field. Flag any FR carrying extra fields (e.g. `Verification:`, `Tested by:`) — those were removed.
-> - Flag white-box FRs — statements whose verification requires reaching past the public interface into a third party or internal-only state. The FR must describe a user-experienceable outcome, or it isn't a requirement.
-> - Flag any FR where no role (user, operator, auditor, reviewer) could tell whether it holds. Experienceability gate.
+> **Check 2 — EARS well-formedness.** Every requirement is a single EARS statement using one of the canonical patterns (see the `ears` skill). Flag any requirement not in EARS shape.
 >
-> **NFR checks:**
-> - Each NFR has a measurable Target (specific threshold, not "fast" or "scalable") and a Verification mode (`app-instrumented`, `platform-observed`, or `architectural-only`). Flag any missing either.
-> - App-instrumented NFRs additionally name the Observable (metric and where it's read). Flag any that don't.
-> - NFRs do not appear in the Acceptance Tests section. Flag any that do.
-> - Flag NFRs that prescribe implementation ("must use Redis"), invent Verification modes, or claim app-instrumented Verification for something inherently platform-observable.
+> **Check 3 — WHAT, not HOW.** Requirements describe user- or consumer-facing outcomes in user/domain language — never architecture, libraries, patterns, internal types, or data structures. "When content is uploaded to a store" not "when a KV write succeeds"; "the system records the change" not "a StorageEvent is emitted". Flag any requirement that prescribes or assumes a solution — it belongs in the design.
 >
-> **Acceptance Test checks:**
-> - Each AT is a Given/When/Then triple. No other fields. Flag any AT with extras (Verifies, Channel, Method, Test name) — they were removed.
-> - Each AT's When clause names a concrete channel (endpoint, command, topic, dashboard, code-review surface). Flag When clauses that describe internal mechanics or abstract intent.
-> - Each AT's Then is a concrete observable visible through that channel. Flag Then clauses that paraphrase the When ("when X is requested, then X was requested") or assert past the channel into internal state.
+> **Check 4 — Verifiable and experienceable.** Every requirement is something a role — user, operator, auditor, reviewer — could tell holds from outside the system. Flag white-box requirements whose truth can only be checked by reaching into internal state. Flag vague or unmeasurable language ("fast", "secure", "user-friendly") with no measure that would decide whether it holds.
 >
-> **Coverage:**
-> - Every FR's observable should appear in at least one AT's Then. List any FR whose observable is not covered by any AT.
-> - If multiple FRs share the same observable outcome, expect them to share one AT — flag for consolidation if each has its own near-duplicate AT.
+> **Check 5 — Alignment with the available context.** Adapt to what exists:
+> - **Against the problem:** the requirements together deliver the framed problem's definition of success for the affected users. Flag requirements that drift from the problem, and any success criterion in the problem that no requirement covers.
+> - **If research exists:** requirements reflect the problem context and constraints the research found — not the technical approaches or architecture it surfaced, which belong to the design. Flag research constraints ignored, and solution-space detail pulled in from research.
+> - No conflicts with existing functionality or project conventions.
 >
-> **Domain feasibility:** The spec is problem-space — what the user needs, not how the system satisfies it. Missing solution-space concerns (auth mechanisms, retry policies, schema-evolution strategies, observability tooling, etc.) belong to the design and stay out of this review. Use each loaded domain skill to flag requirements the domain recognises as infeasible — physically impossible, internally contradictory, or in conflict with hard domain constraints. Name the conflict and the constraint it breaks.
+> **Check 6 — Domain feasibility.** The spec is problem-space — what the user needs, not how the system satisfies it. Missing solution-space concerns (auth mechanisms, retry policies, schema-evolution strategies, observability tooling, etc.) belong to the design and stay out of this review. Use each loaded domain skill to flag requirements the domain recognises as infeasible — physically impossible, internally contradictory, or in conflict with a hard domain constraint. Name the conflict and the constraint it breaks.
+>
+> **Also:** the spec is concise (under 400 lines) and states only the *what* — flag any design or implementation content that has leaked in.
 >
 > **Severity:** P0=explicit violation, P1=implied discrepancy, P2=ambiguity, P3=consideration. Group by severity, P0 first. Reject if any P0.
 
@@ -147,17 +102,17 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 >
 > Review the design for {feature}.
 >
-> Your job is to ensure the design is architecturally unambiguous, sound, and feasible — so an implementer can build from it without clarifying questions.
+> Your job is to ensure the design is unambiguous, matched in depth to its risk, holds the properties of good design, and aligns with everything the team has decided so far — so an implementer can build from it with confidence.
 >
-> **Read these artifacts** (via the `scs` MCP server; use the `artifacts` skill for the read mechanics):
-> - Specification: the `specification` artifact on `{concept_name}`
-> - Design: the `design` artifact on `{concept_name}`
-> - Research: the `research` artifact on `{concept_name}` (if it exists)
-> - Project conventions: look for existing project docs (README, CONTRIBUTING, docs/, ADRs)
-> - Language standard: use the `language` skill
-> - EARS syntax reference: use the `ears` skill (FRs in the spec are EARS sentences)
+> **Read whatever exists** for the concept (via the `scs` MCP server; use the `artifacts` skill for the read mechanics). The design is required; the rest are optional, and a missing one returns `artifact_has_no_saved_revision` — treat it as absent and skip the checks that depend on it:
+> - Design: the `design` artifact on `{concept_name}` — the artifact under review.
+> - Specification: the `specification` artifact on `{concept_name}` (if it exists).
+> - Research: the `research` artifact on `{concept_name}` (if it exists).
+> - Problem: the `problem` artifact on `{concept_name}`.
+> - Project conventions: use the `conventions` skill to discover the repository's guidelines.
+> - Language standard: use the `language` skill. EARS reference: use the `ears` skill (spec requirements are EARS sentences).
 >
-> **Load relevant domain skills.** Scan the spec and design and load any that apply. Use them to check the design's **architectural soundness** and **feasibility** — see the Domain soundness check below.
+> **Load relevant domain skills.** Scan the design and any spec and load any that apply. Use them for the Domain soundness check below.
 > - **distributed-systems**: multiple services, network coordination, eventual consistency
 > - **low-level-systems**: memory management, performance-critical paths, OS interfaces
 > - **security**: auth, untrusted input, sensitive data, compliance
@@ -166,33 +121,33 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 > - **data-engineering**: pipelines, ETL, schema evolution, data quality
 > - **api-design**: public/internal APIs, versioning, contracts
 >
-> **Primary check — architectural unambiguity.** This is the most important thing the review enforces. An implementer reading the design should know exactly what components to build, modify, or use; what each component is responsible for; how the components fit together; and what each component's interface promises. Implementation details — *how* the inside of a component achieves its responsibility — are explicitly NOT the design's job; the design must leave them to the implementer. Flag both directions:
-> - **Architectural ambiguity (P0):** component responsibilities that admit more than one plausible design; missing or vague interfaces; unclear data flow between components; unresolved choices the design must commit to; dependencies between components that are implied rather than stated.
-> - **Over-specification (P1):** pseudo-code or type signatures that prescribe the *inside* of a component rather than its contract; design content an implementer should be free to choose at code-time. The 5–10 line Details cap exists to prevent this — flag any Details block that exceeds it or that reads like a function body rather than a contract.
+> **Check 1 — Unambiguity (primary).** An implementer reading the design should know exactly what components to build, modify, or use; what each is responsible for; how they fit together; and what each interface promises — without needing to ask a clarifying question. Flag both directions:
+> - **Ambiguity (P0):** responsibilities that admit more than one plausible design; missing or vague interfaces; unclear data flow between components; unresolved choices the design should have committed to; dependencies implied rather than stated.
+> - **Over-specification (P1):** content that dictates the *inside* of a component — pseudo-code, function bodies, field-by-field layouts — rather than its contract. That is the implementer's to own.
 >
-> **Other checks:**
-> - Every requirement addressed by design — no orphan requirements. Unchanged behavior covered by existing tests is not an orphan. Removed functionality needs its tests removed, not new tests added.
-> - No gold-plating beyond requirements
-> - Follows project conventions (error handling, logging, naming, architecture)
-> - Failure cases handled at the architectural level (dependencies unavailable, invalid inputs, partial completion) — *what* the response is, not *how* it's implemented.
-> - Risk assessment present with mitigations
-> - Design is concise (under 300 lines)
-> - If research exists, design should be grounded in its technical findings — existing patterns, integration points, and constraints identified in research should be reflected in the design. Flag designs that contradict or ignore research findings without justification.
+> **Check 2 — Depth aligned to risk.** Depth is earned by risk, not spread evenly. Read the risks the design records (and any the spec or research imply):
+> - Flag any risky, uncertain, or likely-to-change area left shallow — boundaries, data flow, interfaces, or failure modes not worked out where the risk called for it (P0 if it blocks the implementer, else P1).
+> - Flag over-investment where risk was low — speculative flexibility, extension points, or abstraction layers the recorded risks do not justify (P1).
+> - Flag a risk the design records but never addresses in the design itself (P1).
 >
-> **Component Rationale checks:**
-> - Every Modified and Added component has a Rationale that names a specific FR. Flag components whose Rationale is generic ("supports the feature") or absent.
-> - Every FR from the specification is named in at least one component's Rationale. List any uncovered FR.
-> - Plumbing components state their transitive coverage explicitly — they name the FR that exercises them through a caller. Flag components whose Rationale tries to assert standalone behaviour that just restates their implementation.
-> - No TS-XX / ITS-XX / E2E-XX scenario blocks in the design. If present, the design is on the old template — flag for migration.
+> **Check 3 — Properties of good design.**
+> - **Modularity:** components have high cohesion and low coupling. Flag a component doing several unrelated things, or components so entangled they cannot change independently.
+> - **Boundaries on change lines:** each boundary states what change it keeps local, and boundaries fall where the requirements are most likely to change. Flag boundaries drawn by layer or by processing step instead of by likely change.
+> - **Small, clear interfaces:** each component's contract is narrow and explicit. Flag wide, leaky, or under-described interfaces.
+> - **Decisions at the right altitude:** key decisions are pinned with a reason; nothing the implementer should own is over-constrained. Flag both an unmade key decision and an over-constrained detail.
+> - **No gold-plating:** nothing designed beyond what the context calls for.
 >
-> **NFR coverage checks:**
-> - Each app-instrumented NFR from the spec has a corresponding Instrumentation entry naming the metric and the component that emits it. Flag any uncovered.
-> - Platform-observed NFRs are noted in Architecture or Risks, not assigned to a component, and not in Instrumentation. Flag misplacement.
-> - Architectural-only NFRs are explained in Architecture (which choice satisfies them) without code or instrumentation. Flag if the design quietly invents tests or metrics for them.
+> **Check 4 — Alignment with the available context.** The design must serve what the team has already decided. Adapt to what exists:
+> - **If a spec exists:** every requirement is addressed by the design — no orphan requirements — and nothing in the design contradicts a requirement, constraint, or stated scope. List any requirement no component serves (P0) and any design choice that breaks a requirement (P0).
+> - **If research exists:** the design reflects its findings — existing patterns, integration points, and constraints. Flag designs that contradict or ignore research findings without justification (P1).
+> - **Against the problem:** the design actually solves the framed problem for the affected users. Flag drift from the problem (P1).
+> - Follows project conventions (error handling, logging, naming, architecture). Handles failure cases at the architectural level (dependencies unavailable, invalid inputs, partial completion) — *what* the response is, not *how* it is coded.
 >
-> **Domain soundness and feasibility:** Apply each loaded domain skill's lens to the design.
-> - **Architectural soundness:** Flag design choices the domain says are wrong or weak. Name the rule the design breaks.
-> - **Feasibility:** Flag design choices the domain recognises as infeasible — physically impossible, in conflict with platform or library capabilities, or violating hard domain constraints. Name the constraint it breaks.
+> **Check 5 — Domain soundness and feasibility.** Apply each loaded domain skill's lens to the design.
+> - **Soundness:** flag design choices the domain says are wrong or weak. Name the rule the design breaks.
+> - **Feasibility:** flag choices the domain recognises as infeasible — physically impossible, in conflict with platform or library capabilities, or violating a hard domain constraint. Name the constraint it breaks.
+>
+> **Also:** the design is concise (under 400 lines). Flag if longer.
 >
 > **Severity:** P0=explicit violation, P1=implied discrepancy, P2=ambiguity, P3=consideration. Group by severity, P0 first. Reject if any P0.
 
@@ -205,14 +160,15 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 >
 > Review the task breakdown for {feature}.
 >
-> Your job is to ensure every task is demoable on its own, every requirement is covered, and the ordering lets each task proceed once its blockers are done.
+> Your job is to ensure every task is demoable on its own, every requirement and design component is covered, and the ordering lets each task proceed once its blockers are done.
 >
-> **Read these artifacts** (via the `scs` MCP server; use the `artifacts` skill for the read mechanics):
-> - Specification: the `specification` artifact on `{concept_name}`
-> - Design: the `design` artifact on `{concept_name}`
-> - Tasks: the `tasks` artifact on `{concept_name}`
-> - Project conventions: look for existing project docs (README, CONTRIBUTING, docs/, ADRs)
-> - Language standard: use the `language` skill
+> **Read whatever exists** for the concept (via the `scs` MCP server; use the `artifacts` skill). The tasks are required; the rest are optional, and a missing one returns `artifact_has_no_saved_revision` — treat it as absent and skip the checks that depend on it:
+> - Tasks: the `tasks` artifact on `{concept_name}` — the breakdown under review.
+> - Specification: the `specification` artifact on `{concept_name}` (if it exists).
+> - Design: the `design` artifact on `{concept_name}` (if it exists).
+> - Problem: the `problem` artifact on `{concept_name}`.
+> - Project conventions: use the `conventions` skill to discover the repository's guidelines.
+> - Language standard: use the `language` skill.
 >
 > **Load relevant domain skills.** Scan the spec, design, and task breakdown and load any that apply. Use them for the Slice soundness check below.
 > - **distributed-systems**: multiple services, network coordination, eventual consistency
@@ -225,10 +181,10 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 >
 > **Per-task gate — demoable.** Every task must deliver a slice that is demoable or independently verifiable on completion. After the task lands, an outside observer should be able to point at something they see differently. Flag any task that fails this test — it's a horizontal slice (one layer only, no observable behaviour) and needs reshaping. This is the tracer-bullet test; the breakdown is only valid if every task passes it.
 >
-> **Aggregate coverage:**
-> - **Requirement coverage.** Every FR in the specification must be addressed by at least one task — the task's `What to build` prose and ACs together must exercise the FR's observable. Read all tasks together. List any uncovered FR as P0.
-> - **Acceptance test coverage.** Every AT-XX in the spec's Acceptance Tests section must be exercised in aggregate by the task ACs. A single spec AT is typically split across multiple task ACs (each task is a slice). Flag any spec AT whose union of covering task ACs is incomplete.
-> - Design-component coverage is NOT checked here — tasks don't enumerate components. It is verified at implementation review against the diff.
+> **Aggregate coverage against the available context:**
+> - **Requirement coverage.** Every requirement in the available context — the spec's requirements, or the problem's success criteria when there is no spec — must be addressed by at least one task. The task's `What to build` prose and ACs together must exercise it. Read all tasks together. List any uncovered requirement as P0.
+> - **Design-component coverage.** Where a design exists, every component it defines must be delivered by some task. List any uncovered component as P0.
+> - The task ACs are the acceptance tests; there is no separate acceptance-test section to cross-check.
 >
 > **Ordering:**
 > - Each task's `Blocked by` must reference only earlier-numbered tasks, or "None". Flag forward references.
@@ -257,26 +213,27 @@ All findings use: **P0** (explicit violation of stated requirement/guideline/con
 >
 > Review the implementation of {feature}.
 >
-> Your job is to ensure the implementation matches the design, satisfies every spec AT, and contains no unfinished work.
+> Your job is to ensure the implementation matches the design, satisfies every requirement and every task's acceptance criteria, and contains no unfinished work.
 >
-> **Read these artifacts** (via the `scs` MCP server; use the `artifacts` skill for the read mechanics):
-> - Tasks: the `tasks` artifact on `{concept_name}`
-> - Design: the `design` artifact on `{concept_name}`
-> - Specification: the `specification` artifact on `{concept_name}` (needed for FR coverage check below)
-> - Language standard: use the `language` skill
+> **Read whatever exists** for the concept (via the `scs` MCP server; use the `artifacts` skill). A missing optional artifact returns `artifact_has_no_saved_revision` — treat it as absent and skip the checks that depend on it:
+> - Tasks: the `tasks` artifact on `{concept_name}`.
+> - Design: the `design` artifact on `{concept_name}` (if it exists).
+> - Specification: the `specification` artifact on `{concept_name}` (if it exists — for the requirement coverage check).
+> - Problem: the `problem` artifact on `{concept_name}`.
+> - Language standard: use the `language` skill.
 >
 > **Steps:**
-> 1. Read the `specification` artifact on `{concept_name}` and list every FR and AT-XX. For each FR, confirm at least one task's `What to build` and ACs address it. Any FR not delivered is P0.
-> 2. Determine the implementation diff base from the current branch's upstream, merge base, or the branch recorded when requirements created the feature. If no base is clear, ask the user. Run the equivalent of `git diff {base}...HEAD` to scope the change.
-> 3. Verify each Modified or Added component from the design appears in the diff.
-> 4. Check the final state matches the design's component contracts and interfaces. Mid-stream tasks may implement only the slice their ACs need; partial implementation in earlier tasks is fine if a later task completes it.
-> 5. For each AT-XX in the spec's Acceptance Tests, find a concrete test in the diff that exercises the AT's When and asserts its Then. A test that would still pass if the satisfying implementation were deleted is P0. Spot-check 2–3 ATs by mentally deleting the implementation.
-> 6. NFRs: for each app-instrumented NFR, confirm the named metric or log is in the diff. Platform-observed and architectural-only NFRs need no diff evidence. Don't expect tests for NFRs.
+> 1. Set the coverage target: every requirement in the spec if it exists, otherwise the problem's success criteria; plus every task's acceptance criteria (Given/When/Then) from the `tasks` artifact. For each requirement, confirm at least one task's `What to build` and ACs deliver it. Any requirement not delivered is P0.
+> 2. Determine the implementation diff base from the current branch's upstream, merge base, or the branch recorded when the feature was created. If no base is clear, ask the user. Run the equivalent of `git diff {base}...HEAD` to scope the change.
+> 3. If a design exists, verify each Modified or Added component it defines appears in the diff.
+> 4. If a design exists, check the final state matches its component contracts and interfaces. Mid-stream tasks may implement only the slice their ACs need; partial implementation in earlier tasks is fine if a later task completes it.
+> 5. For each task's acceptance criteria, find a concrete test in the diff that exercises the Given/When and asserts the Then. A test that would still pass if the satisfying implementation were deleted is P0. Spot-check 2–3 ACs by mentally deleting the implementation.
+> 6. Measurable constraints: if the spec or design states a measurable constraint (performance, security threshold, and the like), confirm the diff carries the evidence it calls for where the system can produce it — a metric, log, or check. A constraint satisfied by an architectural choice needs no code. Don't expect unit tests for these.
 > 7. Stubs and dead code: search for `skip`, `todo`, `pending`, `pass` in test functions, placeholder assertions, unused imports, unused functions, commented-out code. Flag each unless the task's Notes section records it as a known external blocker.
 > 8. Test code quality: tests follow the same engineering standards as production code. Flag duplicated arrange blocks, copy-pasted assertions that differ only in inputs, inline fixtures that should be shared, test names that don't state the behaviour, and ad-hoc mocks where a project fixture exists.
-> 9. IaC and live-state: provisioning configs and imperative scripts (root IaC modules, env stacks, migrations, runbooks) should be linted in the diff, not executed by the implement worker. If an AT passed against an applied environment, confirm via tasks.md or commit messages that the user applied it. Reusable IaC modules carry acceptance tests via plan-time or policy assertions.
+> 9. IaC and live-state: provisioning configs and imperative scripts (root IaC modules, env stacks, migrations, runbooks) should be linted in the diff, not executed by the implement worker. If a task's acceptance test passed against an applied environment, confirm via the `tasks` artifact or commit messages that the user applied it. Reusable IaC modules carry acceptance tests via plan-time or policy assertions.
 > 10. SDD leakage: search for `FR-`, `NFR-`, `AT-`, `REQ-` in code, comments, docstrings, or test names.
-> 11. Verify project conventions against existing project docs (README, CONTRIBUTING, docs/, ADRs): error handling, logging, naming, test structure, commit format.
+> 11. Verify adherence to the repository's guidelines (use the `conventions` skill): error handling, logging, naming, test structure, commit format.
 > 12. Run tests, linters, and build.
 >
 > **Severity:** P0=explicit violation, P1=implied discrepancy, P2=ambiguity, P3=consideration. Group by severity, P0 first. Reject if any P0.

@@ -10,7 +10,7 @@ description: Implement SDD features task-by-task following the specification. Us
 
 Both this orchestrator and every subagent it spawns follow the `language` skill for tone and vocabulary in all output, including replies to the user and commit messages.
 
-SDD artifacts are stored in SCS via the `scs` MCP server, not local files. Use the `artifacts` skill for the storage contract. Implement reads the `tasks` and `specification` artifacts on the concept named `{feature}`, and saves new revisions of the `tasks` artifact as task status changes.
+SDD artifacts are stored in SCS via the `scs` MCP server, not local files. Use the `artifacts` skill for the storage contract. Implement reads the `tasks` artifact, plus the `specification` and `design` artifacts if they exist, on the concept named `{feature}`, and saves new revisions of the `tasks` artifact as task status changes. A missing optional artifact returns `artifact_has_no_saved_revision` — treat it as absent and work from the task and what remains.
 
 ## Orchestrator discipline
 
@@ -29,7 +29,7 @@ You are a coordinator. Keep your own context lean across all tasks:
 Read the `tasks` artifact on the concept (via `get_artifact`) for the ordered task list. For each task in order, prepare and spawn a subagent:
 
 1. Extract the single task from the `tasks` artifact (Status, Blocked by, What to build, Acceptance criteria, Notes).
-2. Extract from the `specification` artifact only the design and requirement sections this task touches.
+2. Extract only the sections this task touches: the requirement sections from the `specification` (if it exists) and the design sections from the `design` artifact (if it exists).
 3. Paste both into the prompt below.
 
 **Subagent prompt** (use an implementation-capable model):
@@ -42,10 +42,10 @@ Read the `tasks` artifact on the concept (via `get_artifact`) for the ordered ta
 > **Task:**
 > {paste the single task here}
 >
-> **Relevant specification context:**
-> {paste relevant design and requirement sections here}
+> **Relevant spec and design context:**
+> {paste the relevant requirement sections (from the specification) and design sections (from the design artifact) here}
 >
-> **Project guidelines:** Look for existing project docs (README, CONTRIBUTING, docs/, ADRs) to resolve conventions.
+> **Project guidelines:** Use the `conventions` skill to resolve and apply the repository's guidelines.
 >
 > **Language standard:** Use the `language` skill for tone and vocabulary in all output, including commit messages.
 >
@@ -84,7 +84,7 @@ If the review finds P0 or P1 issues, spawn a subagent to fix them.
 >
 > {paste review findings here}
 >
-> Look for existing project docs (README, CONTRIBUTING, docs/, ADRs) for project conventions. Commit each fix. Run tests and linting after each fix. Update checkboxes in the `tasks` artifact on `{concept_name}` as needed (read current revision, edit, save with `base_revision_id`; use the `artifacts` skill).
+> Use the `conventions` skill to resolve the repository's guidelines. Commit each fix. Run tests and linting after each fix. Update checkboxes in the `tasks` artifact on `{concept_name}` as needed (read current revision, edit, save with `base_revision_id`; use the `artifacts` skill).
 >
 > **Escalation:** If a fix requires changes beyond the scope of the review findings, STOP and report what needs broader attention.
 

@@ -49,10 +49,11 @@ Each artifact is addressed by a **concept name** plus an **artifact kind**.
 |-------|---------|---------------|
 | `frame` | feature | `problem` |
 | `explore` | feature | `research` |
-| `converge` / `extract-spec` | feature | `specification` |
+| `spec` / `extract-spec` | feature | `specification` |
+| `design` | feature | `design` |
 | `breakdown` | feature | `tasks` |
 
-`design`, `roadmap`, and `adr` are not produced in this flow (`adr` stays local).
+`roadmap` is not produced in this flow, and `adr` stays local.
 
 ## Concept creation and repository linking
 
@@ -98,7 +99,7 @@ Each save appends a new immutable revision — it never overwrites history.
   change, and save again with that revision id as `base_revision_id`.
 
 Bodies are capped at 1 MiB (1,048,576 UTF-8 bytes). Keep artifacts within the
-size guidance each skill states (designs under ~300 lines, roadmaps under ~200,
+size guidance each skill states (specifications and designs under ~400 lines,
 etc.).
 
 ## Why versioned, not files

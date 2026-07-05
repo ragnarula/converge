@@ -10,7 +10,7 @@ Both this orchestrator and every subagent it spawns follow the `language` skill 
 
 Read the `problem` artifact for the concept from SCS (see the `artifacts` skill). Create a temporary local research document as a scratchpad; the final research lands in SCS.
 
-The output is a **description of the current state** — what is true, with evidence — that answers the chosen questions. It is NOT a recommendation and does NOT pick a direction or propose a solution. Choosing an approach is the `converge` skill's job; research that recommends pre-empts it and biases the decision.
+The output is a **description of the current state** — what is true, with evidence — that answers the chosen questions. It is NOT a recommendation and does NOT pick a direction or propose a solution. Choosing an approach is the `design` skill's job; research that recommends pre-empts it and biases the decision.
 
 ## What makes a good research question
 
